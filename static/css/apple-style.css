@@ -1,0 +1,772 @@
+/* Apple Design System - Nonvoyhona Tizimi */
+
+:root {
+    /* Apple ranglari */
+    --apple-blue: #007AFF;
+    --apple-green: #34C759;
+    --apple-indigo: #5856D6;
+    --apple-orange: #FF9500;
+    --apple-pink: #FF2D55;
+    --apple-purple: #AF52DE;
+    --apple-red: #FF3B30;
+    --apple-teal: #5AC8FA;
+    --apple-yellow: #FFCC00;
+    
+    /* Apple gray ranglari */
+    --apple-gray: #8E8E93;
+    --apple-gray2: #AEAEB2;
+    --apple-gray3: #C7C7CC;
+    --apple-gray4: #D1D1D6;
+    --apple-gray5: #E5E5EA;
+    --apple-gray6: #F2F2F7;
+    
+    /* Fon ranglari */
+    --bg-primary: #FFFFFF;
+    --bg-secondary: #F5F5F7;
+    --bg-tertiary: #FAFAFA;
+    
+    /* Matn ranglari */
+    --text-primary: #1D1D1F;
+    --text-secondary: #86868B;
+    --text-tertiary: #A1A1A6;
+    
+    /* Sidebar */
+    --sidebar-bg: #1C1C1E;
+    --sidebar-text: #FFFFFF;
+    --sidebar-active: #2C2C2E;
+    
+    /* Apple blur effektlar */
+    --blur-regular: saturate(180%) blur(20px);
+    --blur-thick: saturate(180%) blur(30px);
+    
+    /* Soyalar */
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
+    --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.12);
+    
+    /* Border radius */
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 20px;
+    --radius-full: 9999px;
+}
+
+/* Asosiy sozlamalar */
+* {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', Arial, sans-serif;
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    line-height: 1.47059;
+    letter-spacing: -0.022em;
+}
+
+/* Sidebar - Apple uslubida */
+.sidebar {
+    min-height: 100vh;
+    background: var(--sidebar-bg);
+    color: var(--sidebar-text);
+    padding: 20px 16px !important;
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 260px;
+    z-index: 1000;
+    overflow-y: auto;
+}
+
+.sidebar::-webkit-scrollbar {
+    width: 8px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+}
+
+.sidebar .text-center {
+    padding: 16px 0 24px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 16px;
+}
+
+.sidebar h4 {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.021em;
+    margin-bottom: 4px;
+}
+
+.sidebar small {
+    font-size: 11px;
+    color: var(--apple-gray);
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+}
+
+.sidebar .nav {
+    gap: 4px;
+}
+
+.sidebar .nav-link {
+    color: rgba(255, 255, 255, 0.8);
+    padding: 12px 16px;
+    border-radius: var(--radius-md);
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.sidebar .nav-link:hover {
+    color: white;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.sidebar .nav-link.active {
+    color: white;
+    background: var(--apple-blue);
+    box-shadow: 0 2px 8px rgba(0, 122, 255, 0.3);
+}
+
+.sidebar .nav-link i {
+    font-size: 18px;
+    width: 24px;
+    text-align: center;
+    margin-right: 0;
+}
+
+.sidebar hr {
+    border-color: rgba(255, 255, 255, 0.1);
+    margin: 16px 0;
+}
+
+.sidebar .dropdown-menu {
+    background: var(--sidebar-active);
+    border: none;
+    border-radius: var(--radius-md);
+    padding: 8px;
+    box-shadow: var(--shadow-lg);
+}
+
+.sidebar .dropdown-item {
+    color: rgba(255, 255, 255, 0.9);
+    padding: 10px 14px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.sidebar .dropdown-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.sidebar .dropdown-divider {
+    border-color: rgba(255, 255, 255, 0.1);
+    margin: 8px 0;
+}
+
+/* Asosiy kontent */
+main {
+    margin-left: 260px;
+    padding: 24px 32px !important;
+    min-height: 100vh;
+}
+
+/* Navbar - Apple uslubida */
+.navbar {
+    background: rgba(255, 255, 255, 0.72);
+    backdrop-filter: var(--blur-regular);
+    -webkit-backdrop-filter: var(--blur-regular);
+    border: none;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    padding: 12px 24px;
+    margin-bottom: 24px !important;
+}
+
+.navbar-brand {
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: -0.021em;
+    color: var(--text-primary) !important;
+}
+
+.navbar .d-flex span {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+.navbar img {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    box-shadow: var(--shadow-sm);
+}
+
+/* Kartochkalar - Apple uslubida */
+.card {
+    background: var(--bg-primary);
+    border: none;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+}
+
+.card:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-2px);
+}
+
+.card-header {
+    background: transparent;
+    border-bottom: 1px solid var(--apple-gray5);
+    padding: 20px 24px;
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: -0.021em;
+    color: var(--text-primary);
+}
+
+.card-body {
+    padding: 24px;
+}
+
+/* Jadvallar - Apple uslubida */
+.table {
+    font-size: 14px;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.table thead th {
+    background: var(--bg-tertiary);
+    color: var(--text-secondary);
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 14px 16px;
+    border: none;
+    border-bottom: 1px solid var(--apple-gray5);
+}
+
+.table tbody td {
+    padding: 16px;
+    border: none;
+    border-bottom: 1px solid var(--apple-gray5);
+    color: var(--text-primary);
+    font-weight: 400;
+}
+
+.table tbody tr:hover {
+    background: var(--bg-tertiary);
+}
+
+.table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* Tugmalar - Apple uslubida */
+.btn {
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    padding: 10px 20px;
+    border-radius: var(--radius-md);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    border: none;
+}
+
+.btn-primary {
+    background: var(--apple-blue);
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #0051D5;
+    transform: scale(1.02);
+    box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
+}
+
+.btn-success {
+    background: var(--apple-green);
+    color: white;
+}
+
+.btn-success:hover {
+    background: #248A3D;
+    transform: scale(1.02);
+    box-shadow: 0 4px 12px rgba(52, 199, 89, 0.3);
+}
+
+.btn-danger {
+    background: var(--apple-red);
+    color: white;
+}
+
+.btn-danger:hover {
+    background: #D70015;
+    transform: scale(1.02);
+    box-shadow: 0 4px 12px rgba(255, 59, 48, 0.3);
+}
+
+.btn-warning {
+    background: var(--apple-orange);
+    color: white;
+}
+
+.btn-warning:hover {
+    background: #C77700;
+    transform: scale(1.02);
+}
+
+.btn-secondary {
+    background: var(--apple-gray5);
+    color: var(--text-primary);
+}
+
+.btn-secondary:hover {
+    background: var(--apple-gray4);
+    color: var(--text-primary);
+}
+
+.btn-sm {
+    padding: 6px 14px;
+    font-size: 13px;
+    border-radius: var(--radius-sm);
+}
+
+.btn-lg {
+    padding: 14px 28px;
+    font-size: 16px;
+    border-radius: var(--radius-md);
+}
+
+/* Form elementlari - Apple uslubida */
+.form-control, .form-select {
+    background: var(--bg-tertiary);
+    border: 1px solid transparent;
+    border-radius: var(--radius-md);
+    padding: 12px 16px;
+    font-size: 15px;
+    font-weight: 400;
+    color: var(--text-primary);
+    transition: all 0.2s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    background: var(--bg-primary);
+    border-color: var(--apple-blue);
+    box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.15);
+    outline: none;
+}
+
+.form-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.form-floating > .form-control {
+    padding: 16px;
+    height: 56px;
+}
+
+.form-floating > label {
+    padding: 16px;
+    font-size: 15px;
+    color: var(--text-tertiary);
+}
+
+/* Alertlar - Apple uslubida */
+.alert {
+    border: none;
+    border-radius: var(--radius-md);
+    padding: 16px 20px;
+    font-size: 14px;
+    font-weight: 500;
+    box-shadow: var(--shadow-md);
+}
+
+.alert-success {
+    background: rgba(52, 199, 89, 0.1);
+    color: #1D7A33;
+}
+
+.alert-danger {
+    background: rgba(255, 59, 48, 0.1);
+    color: #C41C14;
+}
+
+.alert-info {
+    background: rgba(0, 122, 255, 0.1);
+    color: #0051D5;
+}
+
+.alert-warning {
+    background: rgba(255, 149, 0, 0.1);
+    color: #A65C00;
+}
+
+/* Badge lar */
+.badge {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 6px 10px;
+    border-radius: var(--radius-full);
+    letter-spacing: -0.01em;
+}
+
+.bg-success {
+    background: var(--apple-green) !important;
+}
+
+.bg-danger {
+    background: var(--apple-red) !important;
+}
+
+.bg-warning {
+    background: var(--apple-orange) !important;
+    color: white !important;
+}
+
+.bg-info {
+    background: var(--apple-blue) !important;
+}
+
+/* Pagination - Apple uslubida */
+.pagination {
+    gap: 8px;
+}
+
+.page-link {
+    border: none;
+    border-radius: var(--radius-md);
+    padding: 10px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-primary);
+    background: var(--bg-primary);
+    box-shadow: var(--shadow-sm);
+}
+
+.page-link:hover {
+    background: var(--apple-gray5);
+    color: var(--text-primary);
+}
+
+.page-item.active .page-link {
+    background: var(--apple-blue);
+    color: white;
+}
+
+/* Dropdown - Apple uslubida */
+.dropdown-menu {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: var(--blur-thick);
+    -webkit-backdrop-filter: var(--blur-thick);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    padding: 8px;
+    min-width: 200px;
+}
+
+.dropdown-item {
+    padding: 10px 14px;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.dropdown-item:hover {
+    background: var(--apple-blue);
+    color: white;
+}
+
+/* Modal - Apple uslubida */
+.modal-content {
+    border: none;
+    border-radius: var(--radius-xl);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+}
+
+.modal-header {
+    background: var(--bg-tertiary);
+    border-bottom: 1px solid var(--apple-gray5);
+    padding: 20px 24px;
+}
+
+.modal-title {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.021em;
+}
+
+.modal-body {
+    padding: 24px;
+}
+
+.modal-footer {
+    border-top: 1px solid var(--apple-gray5);
+    padding: 16px 24px;
+    gap: 12px;
+}
+
+/* Statistik kartochkalar */
+.stats-card {
+    background: linear-gradient(135deg, var(--apple-blue) 0%, var(--apple-indigo) 100%);
+    color: white;
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    box-shadow: var(--shadow-md);
+}
+
+.stats-card.success {
+    background: linear-gradient(135deg, var(--apple-green) 0%, #30B350 100%);
+}
+
+.stats-card.warning {
+    background: linear-gradient(135deg, var(--apple-orange) 0%, #E68600 100%);
+}
+
+.stats-card.danger {
+    background: linear-gradient(135deg, var(--apple-red) 0%, #E02E24 100%);
+}
+
+.stats-card h3 {
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: -0.021em;
+    margin-bottom: 4px;
+}
+
+.stats-card p {
+    font-size: 14px;
+    font-weight: 500;
+    opacity: 0.9;
+    margin: 0;
+}
+
+.stats-card i {
+    font-size: 40px;
+    opacity: 0.3;
+    position: absolute;
+    right: 24px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+/* Animatsiyalar */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.card, .alert {
+    animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 100%;
+        position: relative;
+        min-height: auto;
+    }
+    
+    main {
+        margin-left: 0;
+        padding: 16px !important;
+    }
+    
+    .navbar-brand {
+        font-size: 20px;
+    }
+}
+
+/* Scrollbar - Apple uslubida */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--apple-gray3);
+    border-radius: 5px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--apple-gray2);
+}
+
+/* Login sahifasi - Apple uslubida */
+.login-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 20px;
+}
+
+.login-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: var(--blur-thick);
+    border-radius: var(--radius-xl);
+    padding: 48px;
+    width: 100%;
+    max-width: 420px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    text-align: center;
+}
+
+.login-card h2 {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.021em;
+    margin-bottom: 8px;
+}
+
+.login-card p {
+    color: var(--text-secondary);
+    font-size: 15px;
+    margin-bottom: 32px;
+}
+
+/* Breadcrumb - Apple uslubida */
+.breadcrumb {
+    background: transparent;
+    padding: 0;
+    margin-bottom: 16px;
+}
+
+.breadcrumb-item {
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.breadcrumb-item a {
+    color: var(--apple-blue);
+    text-decoration: none;
+}
+
+.breadcrumb-item.active {
+    color: var(--text-secondary);
+}
+
+.breadcrumb-item + .breadcrumb-item::before {
+    content: ">";
+    color: var(--apple-gray);
+}
+
+/* Nav tabs - Apple uslubida */
+.nav-tabs {
+    border-bottom: 1px solid var(--apple-gray5);
+    gap: 4px;
+}
+
+.nav-tabs .nav-link {
+    border: none;
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+    padding: 12px 20px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    background: transparent;
+}
+
+.nav-tabs .nav-link:hover {
+    color: var(--text-primary);
+    background: var(--bg-tertiary);
+}
+
+.nav-tabs .nav-link.active {
+    color: var(--apple-blue);
+    background: var(--bg-primary);
+    border-bottom: 2px solid var(--apple-blue);
+}
+
+/* Progress bar - Apple uslubida */
+.progress {
+    height: 8px;
+    background: var(--apple-gray5);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+}
+
+.progress-bar {
+    background: var(--apple-blue);
+    border-radius: var(--radius-full);
+}
+
+/* List group - Apple uslubida */
+.list-group-item {
+    border: none;
+    border-bottom: 1px solid var(--apple-gray5);
+    padding: 16px 20px;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text-primary);
+    background: transparent;
+}
+
+.list-group-item:last-child {
+    border-bottom: none;
+}
+
+.list-group-item:hover {
+    background: var(--bg-tertiary);
+}
+
+.list-group-item.active {
+    background: var(--apple-blue);
+    color: white;
+}
+
+/* Tooltip - Apple uslubida */
+.tooltip {
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.tooltip-inner {
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: var(--blur-regular);
+    border-radius: var(--radius-sm);
+    padding: 8px 12px;
+}

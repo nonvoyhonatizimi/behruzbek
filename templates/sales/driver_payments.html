@@ -94,8 +94,10 @@
                             {% endif %}
                         </td>
                         <td>
-                            {% if p.driver %}
+                            {% if p.driver and p.driver.ism %}
                                 <span class="badge bg-primary">{{ p.driver.ism }}</span>
+                            {% elif p.driver_id %}
+                                <span class="badge bg-primary">Haydovchi #{{ p.driver_id }}</span>
                             {% else %}
                                 <span class="text-muted">-</span>
                             {% endif %}

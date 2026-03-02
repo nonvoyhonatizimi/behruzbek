@@ -321,20 +321,15 @@ def daily_transfers():
 def daily_sales():
     """Bugungi sotuvlar - haydovchi hisoboti"""
     from datetime import date, datetime, timedelta
-    from models import uz_datetime
     
     # MUHIM: Faqat "Smena yopish" bosilganda yangilanadi
     # Avtomatik yangilanish O'CHIRILDI - ertalabki 5 da ham yangilanmaydi
-    # O'zbekiston vaqtidan foydalanish (UTC+5)
-    
-    filter_date = uz_datetime().date()
+    # Sana filtri OLIB TASHILANDI - faqat smena raqami asosida ishlaydi
     
     # Oxirgi yopilgan smenani topish (faqat admin "Smena yopish" bosganda yopiladi)
-    # Bu yerda avtomatik vaqt tekshiruvi YO'Q - faqat bazadagi smena holati asosida
-    last_closed_smena = DayStatus.query.filter_by(sana=filter_date, status='yopiq').order_by(DayStatus.smena.desc()).first()
+    last_closed_smena = DayStatus.query.filter_by(status='yopiq').order_by(DayStatus.id.desc()).first()
     
     # Agar smena yopilgan bo'lsa, shu smenadan keyingi sotuvlarni olish
-    # Aks holda 1-smena dan boshlanadi (yangi kun)
     if last_closed_smena:
         current_smena = last_closed_smena.smena + 1
     else:
@@ -346,14 +341,13 @@ def daily_sales():
     # Barcha haydovchilar
     drivers = Employee.query.filter_by(lavozim='Haydovchi', status='faol').all()
     
-    # Sotuvlarni olish (oxirgi yopilgan smenadan keyingi sotuvlar)
-    query = Sale.query.filter(Sale.sana == filter_date, Sale.smena >= current_smena)
+    # Sotuvlarni olish (faqat smena raqami asosida, sana filtrisiz)
+    query = Sale.query.filter(Sale.smena >= current_smena)
     if driver_id:
         # Agar haydovchi tanlangan bo'lsa, faqat o'sha haydovchining sotuvlari
-        # (Hozircha barcha sotuvlarni olamiz, keyin filtrlaymiz)
         pass
     
-    sales = query.order_by(Sale.sana.desc()).all()
+    sales = query.order_by(Sale.id.desc()).all()
     
     # Haydovchi bo'yicha guruhlash
     driver_sales = {}
@@ -375,16 +369,14 @@ def daily_sales():
             driver_sales[driver_name]['naqt_sotuvlar'].append(sale)
             driver_sales[driver_name]['jami_naqt'] += sale.tolandi
     
-    # O'tkazishlarni olish
+    # O'tkazishlarni olish (sana filtrisiz)
     tandirchi_transfers = BreadTransfer.query.filter(
-        BreadTransfer.from_turi == 'tandirchi',
-        BreadTransfer.sana == filter_date
-    ).all()
+        BreadTransfer.from_turi == 'tandirchi'
+    ).order_by(BreadTransfer.id.desc()).all()
     
     haydovchi_transfers = BreadTransfer.query.filter(
-        BreadTransfer.from_turi == 'haydovchi',
-        BreadTransfer.sana == filter_date
-    ).all()
+        BreadTransfer.from_turi == 'haydovchi'
+    ).order_by(BreadTransfer.id.desc()).all()
     
     # Jami hisobot
     jami_sotuvlar = len(sales)
@@ -400,12 +392,17 @@ def daily_sales():
         non_turlari[sale.non_turi]['summa'] += sale.jami_summa
     
     # Haydovchi inventory (non qoldig'i)
-    driver_inventory = DriverInventory.query.filter(
-        DriverInventory.sana == filter_date
-    ).order_by(DriverInventory.driver_id, DriverInventory.non_turi).all()
+    # Haydovchi qoldig'i (sana filtrisiz)
+    driver_inventory = DriverInventory.query.order_by(
+        DriverInventory.driver_id, DriverInventory.non_turi
+    ).all()
     
-    # Kun holatini tekshirish
-    day_status = DayStatus.query.filter_by(sana=filter_date).first()
+    # Kun holatini tekshirish (oxirgi yozuv)
+    day_status = DayStatus.query.order_by(DayStatus.id.desc()).first()
+    
+    # Bugungi sana (ko'rsatish uchun)
+    from models import uz_datetime
+    filter_date = uz_datetime().date()
     
     return render_template('reports/daily_sales.html',
                          filter_date=filter_date,

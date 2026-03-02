@@ -189,11 +189,13 @@ def pay_debt(sale_id):
         # Faqat agar to'lov BOSHQA SMENADA olingan bo'lsa saqlash
         # (Shu smena da non berildi + Shunga smena da pul olindi = Bugungi sotuvlarda)
         # (Smena A da non berildi + Smena B da pul olindi = Qarz to'lovlari)
+        # MUHIM: To'lovni olgan hodim - current_user (kim to'lovni olsa, u saqlanadi)
         if driver_payment and current_smena > sale_smena:
             # Boshqa smenada olingan to'lov - Qarz to'lovlari ga
+            # To'lovni olgan hodim - current_user (kim olsa, u)
             new_driver_payment = DriverPayment(
                 sale_id=sale.id,
-                driver_id=driver_payment.driver_id,
+                driver_id=current_user.employee_id if current_user.employee_id else driver_payment.driver_id,
                 mijoz_id=sale.mijoz_id,
                 summa=payment,
                 smena=current_smena,
@@ -206,6 +208,9 @@ def pay_debt(sale_id):
             driver_payment.status = 'tolandi'
             driver_payment.collected_at = uz_datetime()
             driver_payment.summa = payment
+            # To'lovni olgan hodimni yangilash
+            if current_user.employee_id:
+                driver_payment.driver_id = current_user.employee_id
         
         db.session.commit()
         

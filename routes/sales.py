@@ -348,6 +348,7 @@ def add_sale():
 @login_required
 def edit_sale(id):
     from decimal import Decimal
+    from datetime import datetime
     sale = Sale.query.get_or_404(id)
     
     if request.method == 'POST':
@@ -363,6 +364,23 @@ def edit_sale(id):
         sale.jami_summa = sale.miqdor * narx
         # Qarz qismi o'zgarmaydi (to'lov alohida)
         sale.qoldiq_qarz = sale.jami_summa - old_tolandi
+        
+        # SOATNI YANGILASH (admin uchun)
+        if current_user.rol == 'admin':
+            soat_str = request.form.get('soat')
+            if soat_str:
+                try:
+                    # HH:MM formatida soatni olish
+                    soat_parts = soat_str.split(':')
+                    if len(soat_parts) == 2:
+                        hour = int(soat_parts[0])
+                        minute = int(soat_parts[1])
+                        # created_at ni yangilash
+                        old_created_at = sale.created_at
+                        sale.created_at = old_created_at.replace(hour=hour, minute=minute)
+                        print(f"[DEBUG] Soat yangilandi: {old_created_at} -> {sale.created_at}")
+                except Exception as e:
+                    print(f"[DEBUG] Soat yangilashda xato: {e}")
         
         # Update customer debt
         customer = Customer.query.get(sale.mijoz_id)

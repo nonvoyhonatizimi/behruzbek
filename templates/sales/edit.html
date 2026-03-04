@@ -29,10 +29,17 @@
                         <label for="miqdor" class="form-label">Miqdor (dona)</label>
                         <input type="number" class="form-control" id="miqdor" name="miqdor" value="{{ sale.miqdor }}" required min="1">
                     </div>
-                    <div class="mb-4">
+                    <div class="mb-3">
                         <label for="narx" class="form-label">Narx (dona)</label>
                         <input type="number" class="form-control" id="narx" name="narx" value="{{ sale.narx_dona }}" required min="0">
                     </div>
+                    {% if current_user.rol == 'admin' %}
+                    <div class="mb-4">
+                        <label for="soat" class="form-label">Soat (HH:MM)</label>
+                        <input type="time" class="form-control" id="soat" name="soat" value="{{ sale.created_at.strftime('%H:%M') if sale.created_at else '' }}">
+                        <div class="form-text text-muted">Faqat admin uchun: sotuv vaqtini o'zgartirish</div>
+                    </div>
+                    {% endif %}
                     <div class="alert alert-info">
                         <strong>Eslatma:</strong> To'langan summa va qarzni tahrirlash uchun "Qarz to'lash" funksiyasidan foydalaning.
                     </div>

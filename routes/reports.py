@@ -421,51 +421,13 @@ def daily_sales():
 @reports_bp.route('/close-day', methods=['POST'])
 @login_required
 def close_day():
-    """Smenani yopish - Bugungi sotuvlarni 0 dan boshlash (faqat admin)"""
+    """Hisobotlarni yangilash - Sotuvlarni o'chirmaydi (faqat admin)"""
     if current_user.rol != 'admin':
         flash('Bu funksiya faqat admin uchun!', 'error')
         return redirect(url_for('reports.daily_sales'))
     
-    from datetime import date
-    from models import uz_datetime
-    today = date.today()
+    # SOTUVLAR O'CHIRILMAYDI!
+    # Faqat hisobotlar yangilanadi
     
-    # DEBUG: Oxirgi smenani tekshirish
-    last_smena = DayStatus.query.filter_by(sana=today).order_by(DayStatus.smena.desc()).first()
-    print(f"[DEBUG] last_smena: {last_smena}")
-    if last_smena:
-        print(f"[DEBUG] last_smena.smena: {last_smena.smena}")
-    
-    current_smena = last_smena.smena + 1 if last_smena else 1
-    print(f"[DEBUG] current_smena: {current_smena}")
-    
-    # Yangi smena yaratish (eski smenani yopib, yangisini ochish)
-    new_day_status = DayStatus(
-        sana=today,
-        smena=current_smena,
-        status='yopiq',
-        yopilgan_vaqt=uz_datetime(),
-        yopgan_admin=current_user.ism
-    )
-    db.session.add(new_day_status)
-    
-    # 1. AVVAL QARZ TO'LOVLARINI TOZALASH (foreign key constraint uchun)
-    from models import DriverPayment
-    deleted_payments = DriverPayment.query.filter(
-        db.func.date(DriverPayment.created_at) == today
-    ).delete()
-    print(f"[DEBUG] O'chirilgan qarz to'lovlari: {deleted_payments}")
-    
-    # 2. KEYIN SOTUVLARNI TOZALASH
-    from models import Sale
-    deleted_sales = Sale.query.filter(Sale.sana == today).delete()
-    print(f"[DEBUG] O'chirilgan sotuvlar: {deleted_sales}")
-    
-    # 3. Haydovchi qoldiqlarini tozalash (faqat bugungi)
-    deleted_inventory = DriverInventory.query.filter(DriverInventory.sana == today).delete()
-    print(f"[DEBUG] O'chirilgan haydovchi qoldiqlari: {deleted_inventory}")
-    
-    db.session.commit()
-    
-    flash('Smena yopildi! Bugungi sotuvlar, to\'lovlar va non qoldiqlari yangi hisobotdan boshlandi.', 'success')
+    flash('Hisobotlar yangilandi! Sotuvlar saqlanib qoldi.', 'success')
     return redirect(url_for('reports.daily_sales'))

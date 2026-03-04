@@ -449,17 +449,17 @@ def close_day():
     )
     db.session.add(new_day_status)
     
-    # 1. BUGUNGI SOTUVLARNI TOZALASH (faqat bugungi sana bo'yicha)
-    from models import Sale
-    deleted_sales = Sale.query.filter(Sale.sana == today).delete()
-    print(f"[DEBUG] O'chirilgan sotuvlar: {deleted_sales}")
-    
-    # 2. QARZ TO'LOVLARINI TOZALASH (bugungi kunning to'lovlari)
+    # 1. AVVAL QARZ TO'LOVLARINI TOZALASH (foreign key constraint uchun)
     from models import DriverPayment
     deleted_payments = DriverPayment.query.filter(
         db.func.date(DriverPayment.created_at) == today
     ).delete()
     print(f"[DEBUG] O'chirilgan qarz to'lovlari: {deleted_payments}")
+    
+    # 2. KEYIN SOTUVLARNI TOZALASH
+    from models import Sale
+    deleted_sales = Sale.query.filter(Sale.sana == today).delete()
+    print(f"[DEBUG] O'chirilgan sotuvlar: {deleted_sales}")
     
     # 3. Haydovchi qoldiqlarini tozalash (faqat bugungi)
     deleted_inventory = DriverInventory.query.filter(DriverInventory.sana == today).delete()

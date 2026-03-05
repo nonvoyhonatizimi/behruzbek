@@ -475,5 +475,6 @@ def close_day():
     
     db.session.commit()
     
-    flash('Smena yopildi! Bugungi sotuvlar, to\'lovlar va non qoldiqlari yangi hisobotdan boshlandi.', 'success')
+    flash('Smena yopildi! Bugungi sotuvlar va Qarz to\'lovlari yangi hisobotdan boshlandi.', 'success')
+    # Bugungi sotuvlar sahifasiga qaytadi (Qarz to'lovlari ham yangilandi)
     return redirect(url_for('reports.daily_sales'))

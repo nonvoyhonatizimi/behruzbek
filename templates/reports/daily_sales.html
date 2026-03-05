@@ -19,7 +19,7 @@
             </div>
             <div class="col-md-6">
                 {% if current_user.rol == 'admin' %}
-                    <form method="POST" action="{{ url_for('reports.close_day') }}" onsubmit="return confirm('Haqiqatan ham smenani yopmoqchimisiz? Bugungi sotuvlar 0 dan boshlanadi.')">
+                    <form method="POST" action="{{ url_for('reports.close_day') }}" onsubmit="return confirm('Haqiqatan ham smenani yopmoqchimisiz? Bugungi sotuvlar va Qarz to\'lovlari yangilanadi.')">
                         <button type="submit" class="btn btn-danger w-100">
                             <i class="fas fa-exchange-alt"></i> Smenani yopish
                         </button>

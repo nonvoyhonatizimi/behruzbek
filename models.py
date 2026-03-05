@@ -223,7 +223,7 @@ class DriverPayment(db.Model):
 class DriverInventory(db.Model):
     __tablename__ = 'haydovchi_qoldigi'
     id = db.Column(db.Integer, primary_key=True)
-    driver_id = db.Column(db.Integer, db.ForeignKey('xodimlar.id'), nullable=False)
+    driver_id = db.Column(db.Integer, db.ForeignKey('xodimlar.id', ondelete='CASCADE'), nullable=False)
     non_turi = db.Column(db.String(100), nullable=False)
     miqdor = db.Column(db.Integer, default=0)
     sana = db.Column(db.Date, nullable=False)

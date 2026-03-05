@@ -416,13 +416,17 @@ def daily_sales():
         non_turlari[sale.non_turi]['miqdor'] += sale.miqdor
         non_turlari[sale.non_turi]['summa'] += sale.jami_summa
     
-    # Haydovchi inventory (non qoldig'i)
-    driver_inventory = DriverInventory.query.filter(
-        DriverInventory.sana == filter_date
-    ).order_by(DriverInventory.driver_id, DriverInventory.non_turi).all()
+    # Haydovchi inventory (non qoldig'i) - sana filtrisiz
+    driver_inventory = DriverInventory.query.order_by(
+        DriverInventory.driver_id, DriverInventory.non_turi
+    ).all()
     
-    # Kun holatini tekshirish
-    day_status = DayStatus.query.filter_by(sana=filter_date).first()
+    # Kun holatini tekshirish - oxirgi smena
+    day_status = DayStatus.query.order_by(DayStatus.id.desc()).first()
+    
+    # Ko'rsatish uchun sana (hozirgi vaqt)
+    from datetime import date
+    filter_date = date.today()
     
     return render_template('reports/daily_sales.html',
                          filter_date=filter_date,

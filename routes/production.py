@@ -163,10 +163,14 @@ def delete_bread(id):
     
     # Shu xodim va shu vaqtda qo'shilgan barcha nonlarni topish
     if target.created_at:
-        key_time = target.created_at.strftime('%Y%m%d%H%M')
+        # PostgreSQL va SQLite uchun mos - 1 daqiqa oralig'ida
+        from datetime import timedelta
+        start_time = target.created_at - timedelta(seconds=30)
+        end_time = target.created_at + timedelta(seconds=30)
         all_to_delete = BreadMaking.query.filter(
             BreadMaking.xodim_id == target.xodim_id,
-            db.func.strftime('%Y%m%d%H%M', BreadMaking.created_at) == key_time
+            BreadMaking.created_at >= start_time,
+            BreadMaking.created_at <= end_time
         ).all()
     else:
         # created_at bo'lmasa, faqat shu ID ni o'chirish

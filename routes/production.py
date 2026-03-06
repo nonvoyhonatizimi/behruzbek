@@ -213,7 +213,7 @@ def list_oven():
 def add_oven():
     if request.method == 'POST':
         tandirchi_id = request.form.get('tandirchi_id')
-        yopilgan_non_kg = float(request.form.get('yopilgan_non_kg', 0) or 0)
+        yopilgan_non_kg = int(float(request.form.get('yopilgan_non_kg', 0) or 0))
         
         # Asosiy Oven yozuvi
         new_oven = Oven(

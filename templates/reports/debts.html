@@ -71,6 +71,9 @@
                                         <th class="text-end">Jami summa</th>
                                         <th class="text-end">To'landi</th>
                                         <th class="text-end">Qarz</th>
+                                        {% if current_user.rol == 'admin' %}
+                                        <th class="text-center">Amal</th>
+                                        {% endif %}
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -82,6 +85,17 @@
                                         <td class="text-end">{{ "{:,.0f}".format(sale.total_summa) }} so'm</td>
                                         <td class="text-end text-success">{{ "{:,.0f}".format(sale.total_tolandi) }} so'm</td>
                                         <td class="text-end text-danger fw-bold">{{ "{:,.0f}".format(sale.total_qarz) }} so'm</td>
+                                        {% if current_user.rol == 'admin' %}
+                                        <td class="text-center">
+                                            <form method="POST" action="{{ url_for('reports.pay_debt_by_date', customer_id=item.customer.id) }}" style="display:inline;">
+                                                <input type="hidden" name="sana" value="{{ sale.sana.strftime('%Y-%m-%d') if sale.sana else '' }}">
+                                                <input type="hidden" name="non_turi" value="{{ sale.non_turi }}">
+                                                <button type="submit" class="btn btn-success btn-sm">
+                                                    <i class="fas fa-check"></i> To'lash
+                                                </button>
+                                            </form>
+                                        </td>
+                                        {% endif %}
                                     </tr>
                                     {% endfor %}
                                 </tbody>

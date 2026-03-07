@@ -101,6 +101,63 @@ def customer_debts():
     
     return render_template('reports/debts.html', report_data=report_data)
 
+@reports_bp.route('/pay-debt-by-date/<int:customer_id>', methods=['POST'])
+@login_required
+def pay_debt_by_date(customer_id):
+    """Admin: Mijozning ma'lum sanasidagi qarzini to'lash"""
+    if current_user.rol != 'admin':
+        flash('Bu funksiya faqat admin uchun!', 'error')
+        return redirect(url_for('reports.customer_debts'))
+    
+    from datetime import datetime
+    
+    # Form ma'lumotlarini olish
+    sana_str = request.form.get('sana', '')
+    non_turi = request.form.get('non_turi', '')
+    
+    if not sana_str or not non_turi:
+        flash('Sana yoki non turi topilmadi!', 'error')
+        return redirect(url_for('reports.customer_debts'))
+    
+    # Sanani parse qilish
+    try:
+        sana = datetime.strptime(sana_str, '%Y-%m-%d').date()
+    except ValueError:
+        flash('Sana formati noto\'g\'ri!', 'error')
+        return redirect(url_for('reports.customer_debts'))
+    
+    # Mos keluvchi sotuvlarni topish va to'lash
+    sales = Sale.query.filter(
+        Sale.mijoz_id == customer_id,
+        Sale.sana == sana,
+        Sale.non_turi == non_turi,
+        Sale.qoldiq_qarz > 0
+    ).all()
+    
+    if not sales:
+        flash('Qarzli sotuv topilmadi!', 'warning')
+        return redirect(url_for('reports.customer_debts'))
+    
+    # Barcha sotuvlarni to'langan deb belgilash
+    total_paid = 0
+    for sale in sales:
+        qarz = float(sale.qoldiq_qarz)
+        sale.tolandi = float(sale.tolandi or 0) + qarz
+        sale.qoldiq_qarz = 0
+        total_paid += qarz
+    
+    # Mijozning jami qarzini yangilash
+    customer = Customer.query.get(customer_id)
+    if customer:
+        customer.jami_qarz = float(customer.jami_qarz or 0) - total_paid
+        if customer.jami_qarz < 0:
+            customer.jami_qarz = 0
+    
+    db.session.commit()
+    
+    flash(f'{non_turi} ({sana.strftime("%d.%m.%Y")}) - {total_paid:,.0f} so\'m to\'landi!', 'success')
+    return redirect(url_for('reports.customer_debts'))
+
 @reports_bp.route('/send-debt-notification/<int:customer_id>')
 @login_required
 def send_debt_notification(customer_id):

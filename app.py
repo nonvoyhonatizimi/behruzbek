@@ -67,9 +67,13 @@ def index():
     if current_user.rol == 'customer' or current_user.customer_id:
         return redirect(url_for('customer_portal.dashboard'))
     
+    # For admin and operator, redirect to Daily Sales as requested
+    if current_user.rol == 'admin' or (current_user.employee and current_user.employee.lavozim == 'Operator'):
+        return redirect(url_for('reports.daily_sales'))
+
     today = datetime.now().date()
     
-    # Stats
+    # Stats (Keep as fallback or for other roles if any)
     daily_sales = db.session.query(func.sum(Sale.tolandi)).filter(Sale.sana == today).scalar() or 0
     daily_production = db.session.query(func.sum(BreadMaking.sof_non)).filter(BreadMaking.sana == today).scalar() or 0
     total_debt = db.session.query(func.sum(Customer.jami_qarz)).scalar() or 0

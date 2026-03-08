@@ -17,7 +17,12 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/apple-style.css') }}">
     {% block head %}{% endblock %}
 </head>
-<body>
+<body class="sidebar-hidden">
+    {% if current_user.is_authenticated %}
+    <button class="sidebar-toggle" onclick="toggleSidebar()" id="sidebarToggle">
+        <i class="fas fa-chevron-left"></i>
+    </button>
+    {% endif %}
     <div class="container-fluid">
         <div class="row">
             {% if current_user.is_authenticated %}
@@ -186,6 +191,28 @@
 
     <!-- Bootstrap 5 JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function toggleSidebar() {
+            document.body.classList.toggle('sidebar-hidden');
+            const toggleBtn = document.getElementById('sidebarToggle');
+            // State is managed by CSS classes, but we can add more logic here if needed
+            
+            // Optional: Save preference to localStorage
+            const isHidden = document.body.classList.contains('sidebar-hidden');
+            localStorage.setItem('sidebar_hidden', isHidden);
+        }
+
+        // Initialize state from localStorage or default to hidden
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedState = localStorage.getItem('sidebar_hidden');
+            if (savedState === 'false') {
+                document.body.classList.remove('sidebar-hidden');
+            } else {
+                // Default to hidden as requested
+                document.body.classList.add('sidebar-hidden');
+            }
+        });
+    </script>
     {% block scripts %}{% endblock %}
 </body>
 </html>

@@ -82,6 +82,12 @@ body {
     overflow-x: hidden;
     display: flex;
     flex-direction: column;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Sidebar yashirin holati */
+body.sidebar-hidden .sidebar {
+    left: -260px;
 }
 
 .sidebar .nav {
@@ -209,6 +215,11 @@ main {
     margin-left: 260px;
     padding: 24px 32px !important;
     min-height: 100vh;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body.sidebar-hidden main {
+    margin-left: 0;
 }
 
 /* Navbar - Apple uslubida */
@@ -622,19 +633,62 @@ main {
 /* Responsive */
 @media (max-width: 768px) {
     .sidebar {
-        width: 100%;
-        position: relative;
-        min-height: auto;
+        width: 260px;
+        position: fixed;
+        left: -260px;
+        z-index: 1100;
     }
     
+    body.sidebar-hidden .sidebar {
+        left: -260px;
+    }
+    
+    body:not(.sidebar-hidden) .sidebar {
+        left: 0;
+    }
+
     main {
-        margin-left: 0;
+        margin-left: 0 !important;
         padding: 16px !important;
     }
     
     .navbar-brand {
         font-size: 20px;
     }
+}
+
+/* Sidebar Toggle Arrow Button */
+.sidebar-toggle {
+    position: fixed;
+    left: 260px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 24px;
+    height: 50px;
+    background: var(--sidebar-bg);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0 10px 10px 0;
+    cursor: pointer;
+    z-index: 1050;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    border: none;
+    box-shadow: 4px 0 8px rgba(0,0,0,0.1);
+}
+
+.sidebar-toggle i {
+    transition: transform 0.4s ease;
+    font-size: 14px;
+}
+
+body.sidebar-hidden .sidebar-toggle {
+    left: 0;
+}
+
+body.sidebar-hidden .sidebar-toggle i {
+    transform: rotate(180deg);
 }
 
 /* Scrollbar - Apple uslubida */

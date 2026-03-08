@@ -220,6 +220,9 @@ main {
 
 body.sidebar-hidden main {
     margin-left: 0;
+    width: 100% !important;
+    max-width: 100% !important;
+    flex: 0 0 100% !important;
 }
 
 /* Navbar - Apple uslubida */

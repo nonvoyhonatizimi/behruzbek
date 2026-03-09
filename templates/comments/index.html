@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block title %}Izohlar - Nonvoyhona Tizimi{% endblock %}
+{% block header_title %}Izohlar (Mijozlar bilan aloqa){% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Chap tomon: Mijozni tanlash -->
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 shadow-sm border-0">
+            <div class="card-header bg-white py-3 border-bottom-0">
+                <h6 class="mb-0 fw-bold text-primary"><i class="fas fa-users me-2"></i> Mijozni tanlang</h6>
+            </div>
+            <div class="card-body">
+                <form action="{{ url_for('comments.index') }}" method="GET" class="d-flex w-100">
+                    <select name="customer_id" class="form-select form-select-lg" onchange="this.form.submit()">
+                        <option value="">-- Mijozni tanlang --</option>
+                        {% for customer in customers %}
+                        <option value="{{ customer.id }}" {% if selected_customer and customer.id == selected_customer.id %}selected{% endif %}>
+                            {{ customer.nomi }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </form>
+                
+                <div class="mt-4 text-center text-muted">
+                    <i class="fas fa-hand-pointer fa-3x opacity-25 mb-3"></i>
+                    <p class="small">Xabarlarni o'qish va javob yozish uchun tepadan kerakli mijozni tanlang.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- O'ng tomon: Chat/Izohlar yozish joyi -->
+    <div class="col-md-8 mb-4">
+        <div class="card h-100 shadow-sm border-0 d-flex flex-column" style="min-height: 500px;">
+            {% if selected_customer %}
+                <div class="card-header bg-white py-3 border-bottom-0">
+                    <h6 class="mb-0 fw-bold"><i class="fas fa-comment-dots text-primary me-2"></i> {{ selected_customer.nomi }} bilan izohlar tarixi</h6>
+                </div>
+                
+                <!-- Chat tarixi -->
+                <div class="card-body flex-grow-1 p-3" style="max-height: 400px; overflow-y: auto; background-color: #f8f9fa;" id="chat-container">
+                    {% if chat_history %}
+                        <div class="d-flex flex-column gap-3">
+                            {% for comment in chat_history %}
+                            <div class="d-flex w-100 {% if comment.is_from_admin %}justify-content-end{% else %}justify-content-start{% endif %}">
+                                <div class="p-3 rounded {% if comment.is_from_admin %}bg-primary text-white{% else %}bg-white border text-dark shadow-sm{% endif %}" 
+                                     style="max-width: 80%; border-radius: 12px !important;">
+                                    <div class="small fw-bold mb-1 {% if comment.is_from_admin %}opacity-75{% else %}text-primary{% endif %}">
+                                        {% if comment.is_from_admin %}Siz (Admin){% else %}{{ selected_customer.nomi }}{% endif %}
+                                        <span class="ms-2" style="font-size: 0.75rem;">{{ comment.created_at.strftime('%d.%m.%Y %H:%M') }}</span>
+                                    </div>
+                                    <div style="font-size: 1rem; line-height: 1.4;">{{ comment.matn }}</div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center text-muted h-100 d-flex flex-column justify-content-center pt-5">
+                            <i class="far fa-comments fa-4x mb-3 opacity-25"></i>
+                            <p>Hozircha xabarlar yo'q.<br>Birinchi bo'lib izoh qoldiring!</p>
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Xabar yozish formasi -->
+                <div class="card-footer bg-white border-top-0 p-3 pt-3">
+                    <form action="{{ url_for('comments.index') }}" method="POST">
+                        <input type="hidden" name="customer_id" value="{{ selected_customer.id }}">
+                        <div class="input-group input-group-lg shadow-sm" style="border-radius: 20px;">
+                            <input type="text" name="matn" class="form-control bg-light border-0" placeholder="Izoh yoki xabar yozing..." required autocomplete="off" style="border-radius: 20px 0 0 20px;">
+                            <button type="submit" class="btn btn-primary" style="border-radius: 0 20px 20px 0; padding-left: 2rem; padding-right: 2rem;">
+                                <i class="fas fa-paper-plane"></i> Yuborish
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <script>
+                    // Sahifa yuklanganda chat eng pastga (yangilariga) tushib turishi uchun
+                    document.addEventListener("DOMContentLoaded", function() {
+                        var chatContainer = document.getElementById("chat-container");
+                        if (chatContainer) {
+                            chatContainer.scrollTop = chatContainer.scrollHeight;
+                        }
+                    });
+                </script>
+            {% else %}
+                <div class="card-body d-flex flex-column justify-content-center align-items-center h-100 text-muted bg-light border-0" style="border-radius: 12px;">
+                    <i class="fas fa-comments fa-5x mb-4 opacity-25"></i>
+                    <h5 class="fw-bold opacity-50">Izohlar bo'shlig'i</h5>
+                    <p class="text-center mb-0 opacity-50">Suhbatni boshlash uchun<br>chap tomondan mijozni tanlang.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

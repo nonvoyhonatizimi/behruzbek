@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, url_for, flash
+from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_required, current_user
 from models import db, Sale, Customer, BreadType
 from sqlalchemy import func
@@ -14,20 +14,39 @@ def dashboard():
         flash('Bu sahifa faqat mijozlar uchun!', 'error')
         return redirect(url_for('index'))
     
+    from models import CustomerComment
     customer = Customer.query.get(current_user.customer_id)
     
     # Mijozning barcha sotuvlarini olish
     sales = Sale.query.filter_by(mijoz_id=customer.id).order_by(Sale.sana.desc(), Sale.created_at.desc()).all()
     
-    # Qarz haqida umumiy ma'lumot
-    total_spent = db.session.query(func.sum(Sale.jami_summa)).filter_by(mijoz_id=customer.id).scalar() or 0
-    total_paid = db.session.query(func.sum(Sale.tolandi)).filter_by(mijoz_id=customer.id).scalar() or 0
+    # Izohlarni olish
+    comments = CustomerComment.query.filter_by(customer_id=customer.id).order_by(CustomerComment.created_at.desc()).all()
     
     return render_template('portal/dashboard.html', 
                            customer=customer, 
                            sales=sales,
-                           total_spent=total_spent,
-                           total_paid=total_paid)
+                           comments=comments)
+
+@customer_portal_bp.route('/add_comment', methods=['POST'])
+@login_required
+def add_comment():
+    if not current_user.customer_id:
+        return redirect(url_for('index'))
+    
+    from models import CustomerComment
+    matn = request.form.get('matn')
+    if matn and matn.strip():
+        comment = CustomerComment(
+            customer_id=current_user.customer_id,
+            is_from_admin=False,
+            matn=matn.strip()
+        )
+        db.session.add(comment)
+        db.session.commit()
+        flash('Izohingiz adminga yuborildi', 'success')
+        
+    return redirect(url_for('customer_portal.dashboard'))
 
 @customer_portal_bp.route('/sale/<int:id>')
 @login_required

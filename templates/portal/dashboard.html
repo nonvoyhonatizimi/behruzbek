@@ -5,27 +5,56 @@
 
 {% block content %}
 <div class="row mb-4">
-    <div class="col-md-4">
-        <div class="card bg-primary text-white text-center p-3 mb-3">
-            <div class="card-body">
-                <h6 class="text-uppercase small mb-2">Umumiy xarid</h6>
-                <h3 class="fw-bold mb-0">{{ "{:,.0f}".format(total_spent) }} so'm</h3>
+    <!-- Chap tomon: Hozirgi qarz -->
+    <div class="col-md-4 mb-3">
+        <div class="card bg-danger text-white text-center p-3 h-100 shadow-sm border-0">
+            <div class="card-body d-flex flex-column justify-content-center">
+                <h6 class="text-uppercase small mb-2 opacity-75">Hozirgi qarz</h6>
+                <h2 class="fw-bold mb-0 display-6">{{ "{:,.0f}".format(customer.jami_qarz) }} <small class="fs-6">so'm</small></h2>
             </div>
         </div>
     </div>
-    <div class="col-md-4">
-        <div class="card bg-success text-white text-center p-3 mb-3">
-            <div class="card-body">
-                <h6 class="text-uppercase small mb-2">Jami to'langan</h6>
-                <h3 class="fw-bold mb-0">{{ "{:,.0f}".format(total_paid) }} so'm</h3>
+    
+    <!-- O'ng tomon: Izohlar (Xabarlar) bo'limi -->
+    <div class="col-md-8 mb-3">
+        <div class="card h-100 shadow-sm border-0 d-flex flex-column">
+            <div class="card-header bg-white py-3 border-bottom-0">
+                <h6 class="mb-0 text-primary fw-bold"><i class="fas fa-comments me-2"></i> Adminga xabar va Izohlar</h6>
             </div>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card bg-danger text-white text-center p-3 mb-3">
-            <div class="card-body">
-                <h6 class="text-uppercase small mb-2">Hozirgi qarz</h6>
-                <h3 class="fw-bold mb-0">{{ "{:,.0f}".format(customer.jami_qarz) }} so'm</h3>
+            
+            <!-- Xabarlar oynasi -->
+            <div class="card-body flex-grow-1 p-3" style="max-height: 250px; overflow-y: auto; background-color: #f8f9fa;">
+                {% if comments %}
+                    <div class="d-flex flex-column gap-2">
+                        {% for comment in comments %}
+                        <div class="d-flex w-100 {% if comment.is_from_admin %}justify-content-start{% else %}justify-content-end{% endif %}">
+                            <div class="p-2 rounded {% if comment.is_from_admin %}bg-white border text-dark{% else %}bg-primary text-white{% endif %}" 
+                                 style="max-width: 80%; border-radius: 12px !important;">
+                                <div class="small fw-bold mb-1 opacity-75">
+                                    {% if comment.is_from_admin %}Admin{% else %}Siz{% endif %} 
+                                    <span class="ms-2" style="font-size: 0.7rem;">{{ comment.created_at.strftime('%d.%m.%Y %H:%M') }}</span>
+                                </div>
+                                <div style="font-size: 0.95rem;">{{ comment.matn }}</div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center text-muted h-100 d-flex flex-column justify-content-center pt-4">
+                        <i class="fas fa-comment-dots fa-3x mb-2 opacity-25"></i>
+                        <p class="small">Hozircha izohlar yoki xabarlar yo'q.<br>Adminga biror nima yozing!</p>
+                    </div>
+                {% endif %}
+            </div>
+            
+            <!-- Xabar yozish formasi -->
+            <div class="card-footer bg-white border-top-0 p-3 pt-0 mt-3">
+                <form action="{{ url_for('customer_portal.add_comment') }}" method="POST" class="d-flex gap-2">
+                    <input type="text" name="matn" class="form-control" placeholder="Xabar yozing..." required autocomplete="off" style="border-radius: 20px;">
+                    <button type="submit" class="btn btn-primary" style="border-radius: 20px; padding-left: 1.5rem; padding-right: 1.5rem;">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </form>
             </div>
         </div>
     </div>

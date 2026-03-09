@@ -234,3 +234,16 @@ class DriverInventory(db.Model):
     updated_at = db.Column(db.DateTime, default=uz_datetime)
     
     driver = db.relationship('Employee', backref='inventory')
+
+class CustomerComment(db.Model):
+    __tablename__ = 'mijoz_izohlari'
+    id = db.Column(db.Integer, primary_key=True)
+    customer_id = db.Column(db.Integer, db.ForeignKey('mijozlar.id', ondelete='CASCADE'), nullable=False)
+    admin_id = db.Column(db.Integer, db.ForeignKey('foydalanuvchilar.id', ondelete='SET NULL'), nullable=True)
+    is_from_admin = db.Column(db.Boolean, default=False)
+    matn = db.Column(db.Text, nullable=False)
+    created_at = db.Column(db.DateTime, default=uz_datetime)
+    is_read = db.Column(db.Boolean, default=False)
+    
+    customer = db.relationship('Customer', backref='comments')
+    admin = db.relationship('User', backref='admin_comments')

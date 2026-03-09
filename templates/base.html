@@ -141,6 +141,13 @@
                     </li>
                     {% endif %}
 
+                    {% if current_user.rol == 'admin' %}
+                    <li class="nav-item">
+                        <a class="nav-link {% if 'comments' in request.endpoint %}active{% endif %}" href="{{ url_for('comments.index') }}">
+                            <i class="fas fa-comments"></i> Izohlar
+                        </a>
+                    </li>
+                    {% endif %}
 
                     {% if current_user.customer_id %}
                     <li class="nav-item">

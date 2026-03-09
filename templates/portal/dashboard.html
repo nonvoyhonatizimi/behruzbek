@@ -10,7 +10,7 @@
         <div class="card bg-danger text-white text-center p-3 mb-3 shadow-sm border-0">
             <div class="card-body">
                 <h6 class="text-uppercase small mb-2 opacity-75">Hozirgi qarz</h6>
-                <h2 class="fw-bold mb-0 display-6">{{ "{:,.0f}".format(customer.jami_qarz) }} <small class="fs-6">so'm</small></h2>
+                <h2 class="fw-bold mb-0 display-6">{{ "{:,.0f}".format(customer.jami_qarz or 0) }} <small class="fs-6">so'm</small></h2>
             </div>
         </div>
 

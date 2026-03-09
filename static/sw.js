@@ -1,4 +1,4 @@
-const CACHE_NAME = 'nonvoyhona-v3';
+const CACHE_NAME = 'nonvoyhona-v5';
 const ASSETS = [
   '/',
   '/static/css/apple-style.css',
@@ -10,15 +10,28 @@ const ASSETS = [
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS);
+      // Just try to cache, don't worry if it fails
+      return Promise.allSettled(ASSETS.map(url => 
+        fetch(url).then(response => {
+           if (response.ok) return cache.put(url, response);
+        }).catch(() => {})
+      ));
     })
   );
+  self.skipWaiting();
 });
 
-self.addEventListener('fetch', (event) => {
-  event.respondWith(
-    caches.match(event.request).then((response) => {
-      return response || fetch(event.request);
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
+    caches.keys().then((cacheNames) => {
+      return Promise.all(
+        cacheNames.filter((name) => name !== CACHE_NAME)
+          .map((name) => caches.delete(name))
+      );
     })
   );
+  return self.clients.claim();
 });
+
+// Disabled fetch for now to prevent "No Internet" errors on Safari
+// self.addEventListener('fetch', (event) => { ... });

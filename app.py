@@ -143,11 +143,15 @@ app.register_blueprint(comments_bp)
 
 @app.route('/sw.js')
 def serve_sw():
-    return app.send_static_file('sw.js')
+    response = app.send_static_file('sw.js')
+    response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    return response
 
 @app.route('/manifest.json')
 def serve_manifest():
-    return app.send_static_file('manifest.json')
+    response = app.send_static_file('manifest.json')
+    response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    return response
 
 # Create database tables on startup
 def init_db():

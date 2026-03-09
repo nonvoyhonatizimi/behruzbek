@@ -19,6 +19,21 @@
         </div>
     </div>
     <div class="card-body">
+        <!-- Sana bo'yicha filtr -->
+        <form method="GET" action="{{ url_for('production.list_oven') }}" class="row g-3 mb-4">
+            <div class="col-md-9">
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0"><i class="fas fa-calendar-alt text-primary"></i></span>
+                    <input type="date" name="date" class="form-control border-start-0 ps-0" value="{{ filter_date }}">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="fas fa-filter me-1"></i> Saralash
+                </button>
+            </div>
+        </form>
+
         <div class="table-responsive">
             <table class="table table-hover align-middle">
                 <thead class="table-light">
@@ -149,4 +164,28 @@
         </div>
     </div>
 </div>
+
+<!-- Tarix (Oldingi sanalar) -->
+{% if history_dates %}
+<div class="mt-5 mb-4 px-2">
+    <h5 class="text-secondary fw-bold"><i class="fas fa-history me-2"></i>Oldingi sanalar (Tarix)</h5>
+    <p class="small text-muted mb-0">Sana ustiga bossangiz, o'sha kundagi tandir yozuvlari va o'tkazishlari ochiladi.</p>
+</div>
+<div class="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-3 mb-5 px-2">
+    {% for h in history_dates %}
+    {% if h.sana.strftime('%Y-%m-%d') != filter_date %}
+    <div class="col">
+        <a href="{{ url_for('production.list_oven', date=h.sana.strftime('%Y-%m-%d')) }}" class="text-decoration-none">
+            <div class="card h-100 border-0 shadow-sm hover-elevate bg-white">
+                <div class="card-body p-3 text-center">
+                    <h6 class="text-primary mb-2 fw-bold">{{ h.sana.strftime('%d.%m.%Y') }}</h6>
+                    <span class="badge bg-light text-dark font-monospace">{{ h.soni }} ta o'tkazish</span>
+                </div>
+            </div>
+        </a>
+    </div>
+    {% endif %}
+    {% endfor %}
+</div>
+{% endif %}
 {% endblock %}

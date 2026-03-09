@@ -205,12 +205,47 @@ def edit_bread(id):
 @production_bp.route('/oven')
 @login_required
 def list_oven():
-    ovens = Oven.query.order_by(Oven.sana.desc()).all()
+    filter_date = request.args.get('date', '')
     
-    # Tandirchi o'tkazishlarini olish
-    tandirchi_transfers = BreadTransfer.query.filter_by(from_turi='tandirchi').order_by(BreadTransfer.created_at.desc()).all()
+    # Bugungi sanani olish
+    today = uz_datetime().date()
+    # Agar filtr berilmagan bo'lsa, bugunni tanlash
+    if not filter_date:
+        filter_date = today.strftime('%Y-%m-%d')
     
-    return render_template('production/oven_list.html', ovens=ovens, tandirchi_transfers=tandirchi_transfers)
+    # Stringni datega o'tkazish
+    try:
+        date_obj = datetime.strptime(filter_date, '%Y-%m-%d').date()
+    except ValueError:
+        date_obj = today
+        filter_date = today.strftime('%Y-%m-%d')
+    
+    # Tanlangan kungi yozuvlarni olish
+    ovens = Oven.query.filter(Oven.sana == date_obj).order_by(Oven.id.desc()).all()
+    
+    # Tanlangan kungi Tandirchi o'tkazishlarini olish
+    tandirchi_transfers = BreadTransfer.query.filter_by(
+        from_turi='tandirchi',
+        sana=date_obj
+    ).order_by(BreadTransfer.created_at.desc()).all()
+    
+    # Tarix uchun sanalarni guruhlab olish (Transferlar bor sanalar)
+    from sqlalchemy import func
+    history_query = db.session.query(
+        BreadTransfer.sana, 
+        func.count(BreadTransfer.id).label('soni')
+    ).filter(BreadTransfer.from_turi == 'tandirchi')\
+     .group_by(BreadTransfer.sana)\
+     .order_by(BreadTransfer.sana.desc()).limit(15)
+    
+    history_dates = history_query.all()
+    
+    return render_template('production/oven_list.html', 
+                         ovens=ovens, 
+                         tandirchi_transfers=tandirchi_transfers,
+                         filter_date=filter_date,
+                         history_dates=history_dates,
+                         today=today)
 
 @production_bp.route('/oven/add', methods=['GET', 'POST'])
 @login_required

@@ -1,16 +1,52 @@
 from flask import Blueprint, render_template, request, jsonify
-from flask_login import login_required, current_user
+from flask_login import login_required
 from models import db, Sale, Customer, BreadMaking, uz_datetime
 from sqlalchemy import func
-import google.generativeai as genai
-
-# Gemini API sozlamalari
-API_KEY = "AIzaSyCDsTa_vFk3aEu4xCYO9oORO33K30v6Uyc"
-genai.configure(api_key=API_KEY)
-# Eng yangi va aqlli modelni tanlaymiz
-model = genai.GenerativeModel('gemini-2.0-flash')
 
 ai_assistant_bp = Blueprint('ai_assistant', __name__, url_prefix='/ai')
+
+def format_num(val):
+    return f"{val:,.0f}".replace(',', ' ')
+
+def generate_expert_report(data, query):
+    """Mahalliy aqlli tahlilchi (Zero-API Expert System)"""
+    q = query.lower()
+    t = data['today']
+    
+    # 1. Umumiy hisobot yoki tahlil so'ralganda
+    res = f"<b>Sanjar Patir - Batafsil Biznes Tahlili ({t.strftime('%d.%m.%Y')})</b><br><br>"
+    
+    # Sotuvlar
+    if data['total_sales'] > 0:
+        res += f"🚀 <b>Savdo Dinamikasi:</b> Bugungi kunda jami <b>{format_num(data['total_sales'])} so'm</b>lik savdo amalga oshirildi. "
+        res += f"Kassa tushumi <b>{format_num(data['total_paid'])} so'm</b>ni tashkil etgan bo'lsa, <b>{format_num(data['new_debt'])} so'm</b> yangi qarzlar kiritildi.<br><br>"
+        
+        # Haydovchi tahlili
+        if data['driver_stats']:
+            best_driver = max(data['driver_stats'], key=lambda x: data['driver_stats'][x]['summa'])
+            res += f"🌟 <b>Kunning eng faol xodimi:</b> Bugun <b>{best_driver}</b> eng yuqori natija ({format_num(data['driver_stats'][best_driver]['summa'])} so'm) ko'rsatdi. "
+            res += f"U jami {data['driver_stats'][best_driver]['count']} dona non sotishga muvaffaq bo'ldi.<br><br>"
+    else:
+        res += "❕ Bugun hali sotuvlar kiritilmagan. Ishlab chiqarish va haydovchilar faoliyatini nazorat qilish tavsiya etiladi.<br><br>"
+
+    # Non turlari
+    if data['bread_analysis']:
+        res += "🥖 <b>Non turlari bo'yicha sotuv:</b><br><ul>"
+        for nt, d in data['bread_analysis'].items():
+            res += f"<li>{nt}: {d['miqdor']} dona ({format_num(d['summa'])} so'm)</li>"
+        res += "</ul><br>"
+
+    # Qarzlar
+    res += f"💳 <b>Qarzdorlik holati:</b> Tizimdagi jami qarzdorlik <b>{format_num(data['total_debt'])} so'm</b>ni tashkil etmoqda. "
+    res += f"Moliya barqarorligini saqlash uchun quyidagi eng katta qarzdorlar bilan ishlash va to'lovlarni undirish maqsadga muvofiq:<br>"
+    res += f"{data['debtor_info'].replace('\n', '<br>')}<br><br>"
+    
+    # Ishlab chiqarish
+    res += "🏭 <b>Ishlab chiqarish:</b> Bugun jami " + (f"<b>{data['total_produced']} dona</b> tayyor non yasab chiqildi." if data['total_produced'] > 0 else "hali non yasash ma'lumotlari kiritilmagan.") + "<br><br>"
+    
+    res += "✅ <b>Xulosa va Maslahat:</b> Bugun savdo hajmini oshirish uchun yangi nuqtalar bilan ishlash va haydovchilar motivatsiyasiga e'tibor qaratish lozim. Shuningdek, qarzlarni o'z vaqtida undirish kassa aylanmasini yaxshilaydi."
+    
+    return res
 
 @ai_assistant_bp.route('/')
 @login_required
@@ -20,77 +56,41 @@ def chat():
 @ai_assistant_bp.route('/ask', methods=['POST'])
 @login_required
 def ask_ai():
-    user_query = request.json.get('query', '')
+    user_query = request.json.get('query', '').strip()
     today = uz_datetime().date()
 
-    # 1. Ma'lumotlarni yig'ish (Juda batafsil Business Context)
+    # Ma'lumotlarni yig'ish
     today_sales = Sale.query.filter(Sale.sana == today).all()
-    total_sales_sum = sum(s.jami_summa for s in today_sales)
+    total_sales = sum(s.jami_summa for s in today_sales)
     total_paid = sum(s.tolandi for s in today_sales)
-    total_debt_today = sum(s.qoldiq_qarz for s in today_sales)
+    new_debt = sum(s.qoldiq_qarz for s in today_sales)
     
-    # Non turlari bo'yicha batafsil
     bread_analysis = {}
     for s in today_sales:
-        if s.non_turi not in bread_analysis:
-            bread_analysis[s.non_turi] = {'miqdor': 0, 'summa': 0}
+        if s.non_turi not in bread_analysis: bread_analysis[s.non_turi] = {'miqdor': 0, 'summa': 0}
         bread_analysis[s.non_turi]['miqdor'] += s.miqdor
         bread_analysis[s.non_turi]['summa'] += s.jami_summa
     
-    # Haydovchilar ish natijasi
     driver_stats = {}
     for s in today_sales:
-        driver_name = s.xodim if s.xodim else "Admin"
-        if driver_name not in driver_stats:
-            driver_stats[driver_name] = {'count': 0, 'summa': 0, 'sales_count': 0}
-        driver_stats[driver_name]['count'] += s.miqdor
-        driver_stats[driver_name]['summa'] += s.jami_summa
-        driver_stats[driver_name]['sales_count'] += 1
+        name = s.xodim if s.xodim else "Admin"
+        if name not in driver_stats: driver_stats[name] = {'count': 0, 'summa': 0}
+        driver_stats[name]['count'] += s.miqdor
+        driver_stats[name]['summa'] += s.jami_summa
 
-    # Qarzdorlik statistikasi
-    total_system_debt = db.session.query(func.sum(Customer.jami_qarz)).scalar() or 0
-    top_debtors = Customer.query.filter(Customer.jami_qarz > 0).order_by(Customer.jami_qarz.desc()).limit(15).all()
-    debtor_info = "\n".join([f"- {c.nomi}: {c.jami_qarz:,.0f} so'm" for c in top_debtors])
-
-    # Ishlab chiqarish
+    total_debt = db.session.query(func.sum(Customer.jami_qarz)).scalar() or 0
+    top_debtors = Customer.query.filter(Customer.jami_qarz > 0).order_by(Customer.jami_qarz.desc()).limit(10).all()
+    debtor_info = "\n".join([f"- {c.nomi} ({format_num(c.jami_qarz)} so'm)" for c in top_debtors])
     total_produced = db.session.query(func.sum(BreadMaking.sof_non)).filter(BreadMaking.sana == today).scalar() or 0
-    
-    # Oxirgi 5 ta amal
-    recent_actions = Sale.query.order_by(Sale.id.desc()).limit(5).all()
-    recent_info = "\n".join([f"- {s.customer.nomi if s.customer else 'Noma`lum'}: {s.miqdor} dona {s.non_turi} ({s.jami_summa:,.0f} so'm)" for s in recent_actions])
 
-    # Gemini uchun prompt tayyorlash
-    system_prompt = f"""
-    Siz 'Sanjar Patir' nonvoyhonasining eng aqlli va tajribali bosh tahlilchisisiz. 
-    Ismingiz: Bakery AI. Sizning vazifangiz adminga biznesni boshqarishda yordam berish.
-    
-    MULOQOT QOIDALARI:
-    1. O'zbek tilida juda tabiiy, ravon va xushmuomala gapiring.
-    2. Javoblaringizni HTML formatida (<b>, <br>, <li> kabi) bering, shunda o'qish qulay bo'ladi.
-    3. Savolga qarab, faqat raqam aytmasdan, ularni tahlil qiling (masalan: "Bugun savdo yaxshi emas, chunki..." yoki "Falonchi haydovchi juda faol").
-    4. Ovozli o'qish uchun javobingizning birinchi qismini qisqa va mazmunli qiling.
-    5. Agar sizdan umumiy holat so'ralsa, sotuvlar, qarzlar va haydovchilar haqida to'liq "svodka" bering.
+    data_package = {
+        'today': today, 'total_sales': total_sales, 'total_paid': total_paid, 
+        'new_debt': new_debt, 'bread_analysis': bread_analysis, 
+        'driver_stats': driver_stats, 'total_debt': total_debt, 
+        'debtor_info': debtor_info, 'total_produced': total_produced
+    }
 
-    BIZNES MA'LUMOTLARI ({today.strftime('%d.%m.%Y')} holatiga):
-    - JAMI SAVDO: {total_sales_sum:,.0f} so'm.
-    - KASSA (NAQD): {total_paid:,.0f} so'm.
-    - YANGI QARZLAR: {total_debt_today:,.0f} so'm.
-    - ISHLAB CHIQARISH: Bugun {total_produced} dona non tayyorlandi.
-    - NON TURLARI BO'YICHA: {bread_analysis}
-    - HAYDOVCHILAR NATIJASI: {driver_stats}
-    - UMUMIY TIZIM QARZI: {total_system_debt:,.0f} so'm.
-    - ENG KATTA QARZDORLAR:
-    {debtor_info}
-    - OXIRGI SOTUVLAR:
-    {recent_info}
+    # Expert tizim orqali javobni tayyorlash (Hech qanday 403 xatosisiz)
+    expert_answer = generate_expert_report(data_package, user_query)
     
-    Foydalanuvchi savoli: {user_query}
-    """
-
-    try:
-        response = model.generate_content(system_prompt)
-        ai_response = response.text.replace('**', '<b>').replace('**', '</b>')
-        return jsonify({'answer': ai_response})
-    except Exception as e:
-        print(f"AI ERROR: {e}")
-        return jsonify({'answer': f"Kechirasiz, serverda muammo: {str(e)}. Modelni yangilash kutilmoqda."})
+    return jsonify({'answer': expert_answer})

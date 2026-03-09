@@ -8,7 +8,10 @@
     <div class="col-md-6">
         <div class="card">
             <div class="card-body p-4">
-                <form method="POST">
+                <div id="error-msg" class="alert alert-danger d-none">
+                    To'langan summa jami summadan oshib ketishi mumkin emas!
+                </div>
+                <form id="sale-form" method="POST" onsubmit="return validateSale()">
                     <div class="mb-3">
                         <label for="mijoz_search" class="form-label">Mijoz qidirish</label>
                         <input type="text" class="form-control mb-2" id="mijoz_search" placeholder="Mijoz nomini yozing..." onkeyup="filterCustomers()">
@@ -34,6 +37,22 @@
                                     options[i].style.display = "none";
                                 }
                             }
+                        }
+
+                        function validateSale() {
+                            var miqdor = parseFloat(document.getElementById('miqdor').value) || 0;
+                            var narx = parseFloat(document.getElementById('narx').value) || 0;
+                            var tolandi = parseFloat(document.getElementById('tolandi').value) || 0;
+                            var jami = miqdor * narx;
+                            var errorDiv = document.getElementById('error-msg');
+
+                            if (tolandi > jami) {
+                                errorDiv.classList.remove('d-none');
+                                errorDiv.innerHTML = "Xatolik: To'langan summa (<b>" + tolandi.toLocaleString() + "</b>) jami summadan (<b>" + jami.toLocaleString() + "</b>) ko'p bo'lishi mumkin emas!";
+                                window.scrollTo(0, 0);
+                                return false;
+                            }
+                            return true;
                         }
                     </script>
                     <div class="mb-3">

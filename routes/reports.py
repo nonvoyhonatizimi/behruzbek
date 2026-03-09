@@ -101,67 +101,71 @@ def customer_debts():
     
     return render_template('reports/debts.html', report_data=report_data)
 
-@reports_bp.route('/pay-debt-by-date/<int:customer_id>', methods=['POST'])
+@reports_bp.route('/pay-selected-debts/<int:customer_id>', methods=['POST'])
 @login_required
-def pay_debt_by_date(customer_id):
-    """Admin: Mijozning ma'lum sanasidagi qarzini to'lash"""
+def pay_selected_debts(customer_id):
+    """Admin: Mijozning tanlangan bir nechta sanalari bo'yicha qarzini birdaniga to'lash"""
     if current_user.rol != 'admin':
         flash('Bu funksiya faqat admin uchun!', 'error')
         return redirect(url_for('reports.customer_debts'))
     
     from datetime import datetime
+    selected_dates = request.form.getlist('selected_pay_dates')
     
-    # Form ma'lumotlarini olish
-    sana_str = request.form.get('sana', '')
-    non_turi = request.form.get('non_turi', '')
-    
-    if not sana_str or not non_turi:
-        flash('Sana yoki non turi topilmadi!', 'error')
+    if not selected_dates:
+        flash("To'lash uchun hech qanday ma'lumot tanlanmadi", "warning")
         return redirect(url_for('reports.customer_debts'))
-    
-    # Sanani parse qilish
-    try:
-        sana = datetime.strptime(sana_str, '%Y-%m-%d').date()
-    except ValueError:
-        flash('Sana formati noto\'g\'ri!', 'error')
-        return redirect(url_for('reports.customer_debts'))
-    
-    # Mos keluvchi sotuvlarni topish va to'lash
-    sales = Sale.query.filter(
-        Sale.mijoz_id == customer_id,
-        Sale.sana == sana,
-        Sale.non_turi == non_turi,
-        Sale.qoldiq_qarz > 0
-    ).all()
-    
-    if not sales:
-        flash('Qarzli sotuv topilmadi!', 'warning')
-        return redirect(url_for('reports.customer_debts'))
-    
-    # Barcha sotuvlarni to'langan deb belgilash
+
     total_paid = Decimal('0')
-    for sale in sales:
-        qarz = sale.qoldiq_qarz
-        sale.tolandi = (sale.tolandi or Decimal('0')) + qarz
-        sale.qoldiq_qarz = Decimal('0')
-        total_paid += qarz
+    dates_paid_count = 0
+
+    for match_str in selected_dates:
+        parts = match_str.split('|')
+        if len(parts) == 2:
+            sana_str, non_turi = parts
+            
+            try:
+                sana = datetime.strptime(sana_str, '%Y-%m-%d').date()
+            except ValueError:
+                continue # ignore bad dates
+            
+            # Mos keluvchi qarzli sotuvlarni topish va to'lash
+            sales = Sale.query.filter(
+                Sale.mijoz_id == customer_id,
+                Sale.sana == sana,
+                Sale.non_turi == non_turi,
+                Sale.qoldiq_qarz > 0
+            ).all()
+
+            for sale in sales:
+                qarz = Decimal(str(sale.qoldiq_qarz))
+                sale.tolandi = (sale.tolandi or Decimal('0')) + qarz
+                sale.qoldiq_qarz = Decimal('0')
+                total_paid += qarz
+            
+            if sales:
+                dates_paid_count += 1
     
-    # Mijozning jami qarzini yangilash
-    customer = Customer.query.get(customer_id)
-    if customer:
-        customer.jami_qarz = (customer.jami_qarz or Decimal('0')) - total_paid
-        if customer.jami_qarz < 0:
-            customer.jami_qarz = Decimal('0')
-    
-    db.session.commit()
-    
-    flash(f'{non_turi} ({sana.strftime("%d.%m.%Y")}) - {total_paid:,.0f} so\'m to\'landi!', 'success')
+    if total_paid > 0:
+        # Mijozning jami qarzini yangilash
+        customer = Customer.query.get(customer_id)
+        if customer:
+            customer.jami_qarz = (customer.jami_qarz or Decimal('0')) - total_paid
+            if customer.jami_qarz < 0:
+                customer.jami_qarz = Decimal('0')
+        
+        db.session.commit()
+        flash(f'Muvaffaqiyatli! Tanlangan ({dates_paid_count} xil) qarzlar yopildi. Jami {total_paid:,.0f} so\'m to\'landi.', 'success')
+    else:
+        flash('Qarzli sotuv topilmadi yoki xatolik yuz berdi.', 'warning')
+        
     return redirect(url_for('reports.customer_debts'))
 
-@reports_bp.route('/send-debt-notification/<int:customer_id>')
+@reports_bp.route('/send-debt-notification/<int:customer_id>', methods=['POST'])
 @login_required
 def send_debt_notification(customer_id):
-    """Send debt notification to customer's Telegram group"""
+    """Send debt notification to customer's Telegram group via modal selections"""
+    from decimal import Decimal
     customer = Customer.query.get_or_404(customer_id)
     
     # Find matching chat ID
@@ -174,11 +178,17 @@ def send_debt_notification(customer_id):
             break
     
     if not chat_id:
-        flash(f'Telegram guruh topilmadi: {customer.nomi}')
+        flash(f'Telegram guruh topilmadi: {customer.nomi}', 'error')
         return redirect(url_for('reports.customer_debts'))
     
-    # Get sales breakdown
+    selected_dates = request.form.getlist('selected_dates')
+    if not selected_dates:
+        flash("Hech qanday ma'lumot tanlanmadi", "warning")
+        return redirect(url_for('reports.customer_debts'))
+        
+    # Get sales breakdown grouped by sana and non_turi
     sales_breakdown = db.session.query(
+        Sale.sana,
         Sale.non_turi,
         func.sum(Sale.miqdor).label('total_miqdor'),
         func.sum(Sale.jami_summa).label('total_summa'),
@@ -187,24 +197,40 @@ def send_debt_notification(customer_id):
     ).filter(
         Sale.mijoz_id == customer.id,
         Sale.qoldiq_qarz > 0
-    ).group_by(Sale.non_turi).all()
+    ).group_by(Sale.sana, Sale.non_turi).all()
     
+    selected_sales = []
+    total_qarz_for_selected = Decimal('0')
+    
+    for sale in sales_breakdown:
+        sana_str = sale.sana.strftime('%Y-%m-%d') if sale.sana else 'unknown'
+        match_str = f"{sana_str}|{sale.non_turi}"
+        if match_str in selected_dates:
+            selected_sales.append(sale)
+            total_qarz_for_selected += Decimal(str(sale.total_qarz))
+
+    if not selected_sales:
+        flash("Tanlangan ma'lumotlar bo'yicha qarz topilmadi.", "warning")
+        return redirect(url_for('reports.customer_debts'))
+
     # Build message
     message = f"""
 QARZ ESLATMASI
 
 Mijoz: {customer.nomi}
-Umumiy qarz: {float(customer.jami_qarz):,.0f} so'm
+Umumiy qarz holati: {float(customer.jami_qarz):,.0f} so'm
 
-Qarz tafsiloti:
+Tanlangan qarzlar tafsiloti:
 """
     
-    for item in sales_breakdown:
-        message += f"\n{item.non_turi}: {item.total_miqdor} dona"
+    for item in selected_sales:
+        s_date_fmt = item.sana.strftime('%d.%m.%Y') if item.sana else 'Noma`lum'
+        message += f"\nSana: {s_date_fmt} | {item.non_turi}: {item.total_miqdor} dona"
         message += f"\n   Jami: {Decimal(str(item.total_summa)):,.0f} so'm"
         message += f"\n   To'landi: {Decimal(str(item.total_tolandi)):,.0f} so'm"
         message += f"\n   Qarz: {Decimal(str(item.total_qarz)):,.0f} so'm\n"
     
+    message += f"\nYuqoridagi tanlangan qarzlar jami: {total_qarz_for_selected:,.0f} so'm"
     message += f"\nIltimos, kassa qiling!"
     
     # Send to Telegram

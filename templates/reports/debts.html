@@ -47,13 +47,14 @@
                             <a href="{{ url_for('reports.edit_debt', customer_id=item.customer.id) }}" class="btn btn-warning btn-sm">
                                 <i class="fas fa-edit"></i>
                             </a>
+                            <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#payModal{{ item.customer.id }}">
+                                <i class="fas fa-money-bill-wave"></i> To'lash
+                            </button>
                             {% endif %}
                             {% if item.has_telegram %}
-                            <a href="{{ url_for('reports.send_debt_notification', customer_id=item.customer.id) }}" 
-                               class="btn btn-primary btn-sm"
-                               onclick="return confirm('Telegram eslatma yuborilsinmi?')">
+                            <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#telegramModal{{ item.customer.id }}">
                                 <i class="fab fa-telegram"></i>
-                            </a>
+                            </button>
                             {% endif %}
                         </td>
                     </tr>
@@ -87,13 +88,7 @@
                                         <td class="text-end text-danger fw-bold">{{ "{:,.0f}".format(sale.total_qarz) }} so'm</td>
                                         {% if current_user.rol == 'admin' %}
                                         <td class="text-center">
-                                            <form method="POST" action="{{ url_for('reports.pay_debt_by_date', customer_id=item.customer.id) }}" style="display:inline;">
-                                                <input type="hidden" name="sana" value="{{ sale.sana.strftime('%Y-%m-%d') if sale.sana else '' }}">
-                                                <input type="hidden" name="non_turi" value="{{ sale.non_turi }}">
-                                                <button type="submit" class="btn btn-success btn-sm">
-                                                    <i class="fas fa-check"></i> To'lash
-                                                </button>
-                                            </form>
+                                            <i class="fas fa-minus text-muted"></i>
                                         </td>
                                         {% endif %}
                                     </tr>
@@ -119,4 +114,196 @@
         {% endif %}
     </div>
 </div>
+
+{% if report_data %}
+{% for item in report_data %}
+{% if item.has_telegram %}
+<div class="modal fade" id="telegramModal{{ item.customer.id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="{{ url_for('reports.send_debt_notification', customer_id=item.customer.id) }}" method="POST">
+                <div class="modal-header">
+                    <h5 class="modal-title">{{ item.customer.nomi }} ga xabar jo'natish</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                        <div class="d-flex justify-content-between mb-3 align-items-center">
+                            <p class="mb-0 fw-bold">Qaysi sanalarni jo'natmoqchisiz?</p>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="toggleCheckboxes('{{ item.customer.id }}')">
+                                <i class="fas fa-check-square"></i> Hammasini belgilash/O'chirish
+                            </button>
+                        </div>
+                    {% if item.sales_by_date %}
+                        <div id="checkbox-container-{{ item.customer.id }}">
+                        {% for sale in item.sales_by_date %}
+                        <div class="form-check mb-2 p-2 border rounded hover-shadow-sm transition-all" style="background-color: #f8f9fa;">
+                            <input class="form-check-input ms-1 me-2" type="checkbox" name="selected_dates" 
+                                   value="{{ sale.sana.strftime('%Y-%m-%d') if sale.sana else 'unknown' }}|{{ sale.non_turi }}" 
+                                   id="chk_{{ item.customer.id }}_{{ loop.index }}" checked
+                                   data-qarz="{{ sale.total_qarz }}" onchange="updateTotal('{{ item.customer.id }}')">
+                            <label class="form-check-label w-100" for="chk_{{ item.customer.id }}_{{ loop.index }}" style="cursor: pointer;">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span><i class="fas fa-calendar-day text-primary me-2"></i><b>{{ sale.sana.strftime('%d.%m.%Y') if sale.sana else 'Noma`lum' }}</b></span>
+                                    <span class="badge bg-info text-dark">{{ sale.non_turi }}</span>
+                                    <span class="text-danger fw-bold">{{ "{:,.0f}".format(sale.total_qarz) }} so'm</span>
+                                </div>
+                            </label>
+                        </div>
+                        {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted">Qarz tafsiloti yo'q.</p>
+                    {% endif %}
+                </div>
+                <div class="modal-footer d-flex justify-content-between">
+                    <div class="ms-2">
+                        <span class="text-muted small">Tanlangan summa:</span><br>
+                        <b class="text-danger fs-5" id="total-display-{{ item.customer.id }}">0 so'm</b>
+                    </div>
+                    <div>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Bekor qilish</button>
+                        <button type="submit" class="btn btn-primary"><i class="fab fa-telegram me-1"></i> Jo'natish</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endfor %}
+
+{% for item in report_data %}
+{% if current_user.rol == 'admin' %}
+<div class="modal fade" id="payModal{{ item.customer.id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="{{ url_for('reports.pay_selected_debts', customer_id=item.customer.id) }}" method="POST">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title"><i class="fas fa-money-bill-wave me-2"></i> {{ item.customer.nomi }} qarzini to'lash</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-info">
+                        <strong>Qaysi sanalardagi qarzlarni to'lamoqchisiz?</strong><br>
+                        Faqat belgilangan sanalardagi non turlari bo'yicha qarz uziladi.
+                    </div>
+                    {% if item.sales_by_date %}
+                        <div id="pay-checkbox-container-{{ item.customer.id }}">
+                        {% for sale in item.sales_by_date %}
+                        <div class="form-check mb-2 p-2 border rounded hover-shadow-sm transition-all" style="background-color: #f8f9fa;">
+                            <input class="form-check-input ms-1 me-2 pay-checkbox" type="checkbox" name="selected_pay_dates" 
+                                   value="{{ sale.sana.strftime('%Y-%m-%d') if sale.sana else 'unknown' }}|{{ sale.non_turi }}" 
+                                   id="pay_chk_{{ item.customer.id }}_{{ loop.index }}" 
+                                   data-qarz="{{ sale.total_qarz }}" onchange="updatePayTotal('{{ item.customer.id }}')">
+                            <label class="form-check-label w-100" for="pay_chk_{{ item.customer.id }}_{{ loop.index }}" style="cursor: pointer;">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span><i class="fas fa-calendar-alt text-success me-2"></i><b>{{ sale.sana.strftime('%d.%m.%Y') if sale.sana else 'Noma`lum' }}</b></span>
+                                    <span class="badge bg-secondary">{{ sale.non_turi }}</span>
+                                    <span class="text-danger fw-bold">{{ "{:,.0f}".format(sale.total_qarz) }} so'm</span>
+                                </div>
+                            </label>
+                        </div>
+                        {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted text-center py-3">To'lash uchun qarz topilmadi.</p>
+                    {% endif %}
+                </div>
+                <div class="modal-footer d-flex justify-content-between bg-light">
+                    <div class="ms-2">
+                        <span class="text-muted small">To'lanadigan summa:</span><br>
+                        <b class="text-success fs-5" id="pay-total-display-{{ item.customer.id }}">0 so'm</b>
+                    </div>
+                    <div>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Bekor qilish</button>
+                        <button type="submit" class="btn btn-success" id="btn-pay-{{ item.customer.id }}" disabled><i class="fas fa-check me-1"></i> To'lash</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endfor %}
+
+<script>
+    // Barcha modal elementlari ishga tushganda jami summani hisoblash
+    document.addEventListener('DOMContentLoaded', function() {
+        {% for item in report_data %}
+            {% if item.has_telegram %}
+                updateTotal('{{ item.customer.id }}');
+            {% endif %}
+            {% if current_user.rol == 'admin' %}
+                updatePayTotal('{{ item.customer.id }}');
+            {% endif %}
+        {% endfor %}
+    });
+
+    function toggleCheckboxes(customerId) {
+        let container = document.getElementById('checkbox-container-' + customerId);
+        if (!container) return;
+        
+        let checkboxes = container.querySelectorAll('input[type="checkbox"]');
+        let allChecked = Array.from(checkboxes).every(cb => cb.checked);
+        
+        checkboxes.forEach(cb => {
+            cb.checked = !allChecked;
+        });
+        
+        updateTotal(customerId);
+    }
+
+    function updateTotal(customerId) {
+        let container = document.getElementById('checkbox-container-' + customerId);
+        if (!container) return;
+        
+        let checkboxes = container.querySelectorAll('input[type="checkbox"]');
+        let total = 0;
+        
+        checkboxes.forEach(cb => {
+            if (cb.checked) {
+                total += parseFloat(cb.getAttribute('data-qarz')) || 0;
+            }
+        });
+        
+        // Format as number with spaces
+        let formattedTotal = new Intl.NumberFormat('ru-RU').format(total).replace(/,/g, ' ');
+        let displayEl = document.getElementById('total-display-' + customerId);
+        if(displayEl) {
+            displayEl.innerText = formattedTotal + " so'm";
+        }
+    }
+
+    function updatePayTotal(customerId) {
+        let container = document.getElementById('pay-checkbox-container-' + customerId);
+        if (!container) return;
+        
+        let checkboxes = container.querySelectorAll('.pay-checkbox');
+        let total = 0;
+        let anyChecked = false;
+        
+        checkboxes.forEach(cb => {
+            if (cb.checked) {
+                total += parseFloat(cb.getAttribute('data-qarz')) || 0;
+                anyChecked = true;
+            }
+        });
+        
+        // Button holatini yangilash
+        let payBtn = document.getElementById('btn-pay-' + customerId);
+        if(payBtn) {
+            payBtn.disabled = !anyChecked;
+        }
+
+        // Format as number with spaces
+        let formattedTotal = new Intl.NumberFormat('ru-RU').format(total).replace(/,/g, ' ');
+        let displayEl = document.getElementById('pay-total-display-' + customerId);
+        if(displayEl) {
+            displayEl.innerText = formattedTotal + " so'm";
+        }
+    }
+</script>
+
+{% endif %}
+
 {% endblock %}

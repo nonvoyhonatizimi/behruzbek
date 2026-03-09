@@ -144,16 +144,18 @@ def list_sales():
         
     sales = query.order_by(Sale.id.desc()).all()
     
-    # Tarix uchun sanalarni guruhlab olish (Sotuvlar bor sanalar)
-    # Faqat tanlangan sanadan boshqa sanalarni olish
+    # Tarix uchun sanalarni guruhlab olish
     from sqlalchemy import func
     history_query = db.session.query(
         Sale.sana, 
         func.count(Sale.id).label('sotuv_soni'),
         func.sum(Sale.jami_summa).label('jami_summa')
-    ).group_by(Sale.sana).order_by(Sale.sana.desc()).limit(15)
+    )
     
-    history_dates = history_query.all()
+    if customer_name:
+        history_query = history_query.join(Customer).filter(Customer.nomi.ilike(f'%{customer_name}%'))
+    
+    history_dates = history_query.group_by(Sale.sana).order_by(Sale.sana.desc()).limit(15).all()
     
     print(f"DEBUG: Jami sotuvlar soni: {len(sales)}, Tarix sanalari: {len(history_dates)}")  # Debug log
     

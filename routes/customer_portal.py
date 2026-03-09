@@ -14,7 +14,7 @@ def dashboard():
         flash('Bu sahifa faqat mijozlar uchun!', 'error')
         return redirect(url_for('index'))
     
-    from models import CustomerComment
+    from models import CustomerComment, Employee
     customer = Customer.query.get(current_user.customer_id)
     
     # Mijozning barcha sotuvlarini qat'iy tekshirish va olish
@@ -23,10 +23,14 @@ def dashboard():
     # Izohlarni olish
     comments = CustomerComment.query.filter_by(customer_id=customer.id).order_by(CustomerComment.created_at.desc()).all()
     
+    # Haydovchilar ro'yxatini olish (mijozga ko'rinishi uchun)
+    drivers = Employee.query.filter(Employee.lavozim.ilike('%haydovchi%'), Employee.status == 'faol').all()
+    
     return render_template('portal/dashboard.html', 
                            customer=customer, 
                            sales=sales,
-                           comments=comments)
+                           comments=comments,
+                           drivers=drivers)
 
 @customer_portal_bp.route('/add_comment', methods=['POST'])
 @login_required

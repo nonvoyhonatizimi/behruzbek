@@ -122,6 +122,12 @@ def list_sales():
     customer_name = request.args.get('customer_name', '')
     filter_date = request.args.get('date', '')
     
+    # Bugungi sanani olish
+    today = uz_datetime().date()
+    # Agar filtr berilmagan bo'lsa va qidiruv bo'lmasa, bugungi kunni tanlash
+    if not filter_date and not customer_name:
+        filter_date = today.strftime('%Y-%m-%d')
+    
     query = Sale.query
     
     if customer_name:
@@ -137,7 +143,19 @@ def list_sales():
             pass
         
     sales = query.order_by(Sale.id.desc()).all()
-    print(f"DEBUG: Jami sotuvlar soni: {len(sales)}, Filtrlangan: {customer_name}, {filter_date}")  # Debug log
+    
+    # Tarix uchun sanalarni guruhlab olish (Sotuvlar bor sanalar)
+    # Faqat tanlangan sanadan boshqa sanalarni olish
+    from sqlalchemy import func
+    history_query = db.session.query(
+        Sale.sana, 
+        func.count(Sale.id).label('sotuv_soni'),
+        func.sum(Sale.jami_summa).label('jami_summa')
+    ).group_by(Sale.sana).order_by(Sale.sana.desc()).limit(15)
+    
+    history_dates = history_query.all()
+    
+    print(f"DEBUG: Jami sotuvlar soni: {len(sales)}, Tarix sanalari: {len(history_dates)}")  # Debug log
     
     # Tandirchi o'tkazishlarini ham olish (Faqat filter yo'q bo'lsa yoki kerak bo'lsa, lekin foydalanuvchi hozircha faqat sotuvlar haqida so'radi)
     tandir_transfers = BreadTransfer.query.filter_by(from_turi='tandirchi').order_by(BreadTransfer.created_at.desc()).limit(20).all()
@@ -175,7 +193,9 @@ def list_sales():
                          haydovchi_transfers=haydovchi_transfers, 
                          driver_inventory=driver_inventory,
                          customer_name=customer_name,
-                         filter_date=filter_date)
+                         filter_date=filter_date,
+                         history_dates=history_dates,
+                         today=today)
 
 @sales_bp.route('/pay-debt/<int:sale_id>', methods=['GET', 'POST'])
 @login_required

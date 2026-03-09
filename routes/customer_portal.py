@@ -17,8 +17,8 @@ def dashboard():
     from models import CustomerComment
     customer = Customer.query.get(current_user.customer_id)
     
-    # Mijozning barcha sotuvlarini olish
-    sales = Sale.query.filter_by(mijoz_id=customer.id).order_by(Sale.sana.desc(), Sale.created_at.desc()).all()
+    # Mijozning barcha sotuvlarini qat'iy tekshirish va olish
+    sales = sorted(customer.sales, key=lambda s: s.id, reverse=True) if customer.sales else []
     
     # Izohlarni olish
     comments = CustomerComment.query.filter_by(customer_id=customer.id).order_by(CustomerComment.created_at.desc()).all()
@@ -56,3 +56,14 @@ def sale_detail(id):
     
     sale = Sale.query.filter_by(id=id, mijoz_id=current_user.customer_id).first_or_404()
     return render_template('portal/sale_detail.html', sale=sale)
+
+@customer_portal_bp.route('/debug_sales/<int:cid>')
+@login_required
+def debug_sales(cid):
+    if current_user.rol != 'admin':
+        return "Must be admin"
+    customer = Customer.query.get(cid)
+    sales = Sale.query.filter_by(mijoz_id=cid).all()
+    s_ids = [s.id for s in sales]
+    
+    return f"Customer {cid} debt {customer.jami_qarz if customer else 'None'} -> Sales ({len(s_ids)}): {s_ids}"

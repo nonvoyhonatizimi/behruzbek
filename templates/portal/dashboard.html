@@ -82,17 +82,17 @@
                     {% for sale in sales %}
                     <tr>
                         <td class="ps-4">
-                            <div class="fw-bold">{{ sale.sana.strftime('%d.%m.%Y') }}</div>
+                            <div class="fw-bold">{{ sale.sana.strftime('%d.%m.%Y') if sale.sana else 'Noma`lum' }}</div>
                             <small class="text-muted">{{ sale.created_at.strftime('%H:%M') if sale.created_at else '' }}</small>
                         </td>
-                        <td><span class="badge bg-info text-dark">{{ sale.non_turi }}</span></td>
-                        <td>{{ sale.miqdor }} dona</td>
-                        <td>{{ "{:,.0f}".format(sale.narx_dona) }}</td>
-                        <td class="fw-bold">{{ "{:,.0f}".format(sale.jami_summa) }}</td>
-                        <td class="text-success">{{ "{:,.0f}".format(sale.tolandi) }}</td>
+                        <td><span class="badge bg-info text-dark">{{ sale.non_turi or '' }}</span></td>
+                        <td>{{ sale.miqdor or 0 }} dona</td>
+                        <td>{{ "{:,.0f}".format(sale.narx_dona or 0) }}</td>
+                        <td class="fw-bold">{{ "{:,.0f}".format(sale.jami_summa or 0) }}</td>
+                        <td class="text-success">{{ "{:,.0f}".format(sale.tolandi or 0) }}</td>
                         <td>
-                            <span class="{% if sale.qoldiq_qarz > 0 %}text-danger fw-bold{% else %}text-muted{% endif %}">
-                                {{ "{:,.0f}".format(sale.qoldiq_qarz) }}
+                            <span class="{% if (sale.qoldiq_qarz or 0) > 0 %}text-danger fw-bold{% else %}text-muted{% endif %}">
+                                {{ "{:,.0f}".format(sale.qoldiq_qarz or 0) }}
                             </span>
                         </td>
                     </tr>

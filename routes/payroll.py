@@ -42,6 +42,7 @@ def index():
             ishchi_malumot['ish_soni'] = jami_kg
             ishchi_malumot['jami_ish_haqqi'] = jami_kg * 600  # 1 kg = 600 so'm
             ishchi_malumot['birlik'] = 'kg hamir'
+            ishchi_malumot['stavka'] = 600
         
         # Tandirchi bo'lsa - ishlatilgan un kg (har 1 kg = 1000 so'm)
         elif emp.lavozim == 'Tandirchi':
@@ -50,6 +51,7 @@ def index():
             ishchi_malumot['ish_soni'] = jami_un_kg
             ishchi_malumot['jami_ish_haqqi'] = jami_un_kg * 1000  # 1 kg = 1000 so'm
             ishchi_malumot['birlik'] = 'kg un'
+            ishchi_malumot['stavka'] = 1000
         
         # Yasovchi bo'lsa - ishlatilgan hamir kg (har 1 kg = 1500 so'm)
         elif emp.lavozim == 'Yasovchi':
@@ -66,6 +68,7 @@ def index():
             ishchi_malumot['ish_soni'] = jami_hamir_kg
             ishchi_malumot['jami_ish_haqqi'] = jami_hamir_kg * 1500  # 1 kg = 1500 so'm
             ishchi_malumot['birlik'] = 'kg hamir'
+            ishchi_malumot['stavka'] = 1500
         
         hisobot.append(ishchi_malumot)
     
@@ -94,21 +97,33 @@ def detail(employee_id):
     for kun in range(1, oxirgi_kun + 1):
         ish_kuni = date(yil, oy, kun)
         ish_soni = 0
+        stavka = 0
         
         if emp.lavozim == 'Xamirchi':
             xamirlar = Dough.query.filter_by(xodim_id=emp.id, sana=ish_kuni).all()
             ish_soni = sum([x.un_kg for x in xamirlar])
+            stavka = 600
         elif emp.lavozim == 'Tandirchi':
             tandirlar = Oven.query.filter_by(xodim_id=emp.id, sana=ish_kuni).all()
             ish_soni = sum([t.un_kg for t in tandirlar])
+            stavka = 1000
         elif emp.lavozim == 'Yasovchi':
             from models import BreadMaking
             nonlar = BreadMaking.query.filter_by(xodim_id=emp.id, sana=ish_kuni).all()
-            ish_soni = sum([n.hamir_kg for n in nonlar])
+            unique_xamir_ids = set()
+            jami_hamir_kg = 0
+            for n in nonlar:
+                if n.xamir_id not in unique_xamir_ids:
+                    unique_xamir_ids.add(n.xamir_id)
+                    jami_hamir_kg += n.hamir_kg
+            ish_soni = jami_hamir_kg
+            stavka = 1500
+        else:
+            stavka = emp.ish_haqqi_stavka or 0
         
         if ish_soni > 0:
             from decimal import Decimal
-            ish_haqqi = Decimal(str(ish_soni)) * Decimal(str(emp.ish_haqqi_stavka or 0))
+            ish_haqqi = Decimal(str(ish_soni)) * Decimal(str(stavka))
             jami_ish_haqqi += ish_haqqi
             kunlik_ish.append({
                 'sana': ish_kuni.strftime('%d.%m.%Y'),

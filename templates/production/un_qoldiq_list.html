@@ -17,7 +17,13 @@
                     <p class="mb-1">Kelgan: <strong>{{ stat.kelgan_kg }} kg</strong></p>
                     <p class="mb-1">Ishlatilgan: <strong>{{ stat.ishlatilgan_kg }} kg</strong></p>
                     <hr>
-                    <p class="mb-0">Mavjud: <strong class="text-success">{{ stat.mavjud_kg }} kg</strong></p>
+                    <p class="mb-3">Mavjud: <strong class="text-success">{{ stat.mavjud_kg }} kg</strong></p>
+                    {% if current_user.rol == 'admin' %}
+                    <form action="{{ url_for('production.clear_un_qoldiq') }}" method="POST" onsubmit="return confirm('Rostdan ham {{ stat.turi }} bo\'yicha barcha hisob-kitobni nollab yangidan boshlamoqchimisiz? Oldingi kelgan unlar va qorilgan xamirlar tarixda arxivlanadi.');">
+                        <input type="hidden" name="un_turi" value="{{ stat.turi }}">
+                        <button type="submit" class="btn btn-warning btn-sm w-100"><i class="fas fa-trash-alt"></i> Tozalash (0 dan boshlash)</button>
+                    </form>
+                    {% endif %}
                 </div>
             </div>
         </div>

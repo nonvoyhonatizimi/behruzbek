@@ -450,6 +450,35 @@ def un_qoldiq_list():
     records = UnQoldiq.query.order_by(UnQoldiq.sana.desc()).all()
     return render_template('production/un_qoldiq_list.html', records=records, un_statistika=un_statistika, un_turlari=un_turlari)
 
+@production_bp.route('/un-qoldiq/clear', methods=['POST'])
+@login_required
+def clear_un_qoldiq():
+    """Barcha eski un qoldiqlarini 0 ga tushirish (arxivlash)"""
+    if current_user.rol != 'admin':
+        flash('Bu funksiya faqat admin uchun!', 'error')
+        return redirect(url_for('production.un_qoldiq_list'))
+        
+    un_turi = request.form.get('un_turi')
+    
+    if un_turi:
+        from datetime import datetime
+        
+        # Unik arxiv nomi yozuv
+        archive_suffix = f" (Eski_{datetime.now().strftime('%d%m%Y_%H%M')})"
+        archived_name = un_turi + archive_suffix
+        
+        # 1. Eski kelgan unlarni yashirish (arxivlash) qoldiqni kamaytirmaslik va arxivlash nomini o'zgartirish
+        UnQoldiq.query.filter_by(un_turi=un_turi).update({'un_turi': archived_name})
+        
+        # 2. Shu kungacha shu undan qilingan hamma xamirlarni ham yashirish
+        # Shunda ular ham "Ishlatilgan un" statistikasida qatnashmaydi
+        Dough.query.filter_by(un_turi=un_turi).update({'un_turi': archived_name})
+        
+        db.session.commit()
+        flash(f"{un_turi} qoldiqlari arxivlandi. Endi un qoldig'i 0 dan boshlanadi!", "success")
+        
+    return redirect(url_for('production.un_qoldiq_list'))
+
 @production_bp.route('/un-qoldiq/add', methods=['GET', 'POST'])
 @login_required
 def add_un_qoldiq():

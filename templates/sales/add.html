@@ -176,42 +176,63 @@
             text = text.toLowerCase();
             console.log("Analyzing text:", text);
             
-            // 1. Get all customers and bread types
+            // Qo'shimchalarni olib tashlash (yaxshiroq topish uchun)
+            const cleanText = text.replace(/ga\b/g, '')
+                                 .replace(/dan\b/g, '')
+                                 .replace(/ni\b/g, '')
+                                 .replace(/ta\b/g, '');
+            const words = cleanText.split(/\s+/);
+
             const mijozOptions = Array.from(document.getElementById('mijoz_id').options);
             const nonOptions = Array.from(document.getElementById('non_turi').options);
 
-            // 2. Try to find customer
+            // 2. Mijozni baholash tizimi bilan qidirish
             let bestMijoz = null;
-            // Mijoz ismini topish
-            const words = text.split(' ');
+            let maxMijozScore = 0;
             
             for (let opt of mijozOptions) {
                 const customerName = opt.getAttribute('data-name').toLowerCase().trim();
                 const nameParts = customerName.split(' ');
+                let score = 0;
                 
-                // Agar mijoz nomidagi barcha so'zlar gapda qatnashgan bo'lsa
-                let allPartsMatch = true;
                 for (let part of nameParts) {
-                    if (part.length > 2 && !text.includes(part)) {
-                        allPartsMatch = false;
-                        break;
+                    if (part.length < 2) continue;
+                    
+                    for (let word of words) {
+                        if (word.length < 2) continue;
+                        
+                        // To'liq mos kelsa eng yuqori ball
+                        if (word === part) {
+                            score += 10;
+                        } 
+                        // Boshidan mos kelsa (ilyosga -> ilyos)
+                        else if (word.startsWith(part) || part.startsWith(word)) {
+                            if (word.length >= 3 || part.length >= 3) {
+                                score += 5;
+                            }
+                        } 
+                        // Xato eshitilsa (masalan patir -> patri) va bir-biriga 50% o'xshasa
+                        else {
+                            let matchLen = 0;
+                            for(let i=0; i<Math.min(word.length, part.length); i++) {
+                                if (word[i] === part[i]) matchLen++;
+                                else break;
+                            }
+                            if (matchLen >= 3 && matchLen >= part.length / 2) {
+                                score += 3;
+                            }
+                        }
                     }
                 }
-                
-                // Aniq bitta so'zlik nomlar uchun (masalan "Turonboy")
-                // Yoki oxirgi harflar o'zgarganda (masalan "turonboyga")
-                if (!allPartsMatch && nameParts.length === 1 && customerName.length > 3) {
-                     for (let word of words) {
-                         if (word.startsWith(customerName) || customerName.startsWith(word.slice(0, -2))) {
-                             allPartsMatch = true;
-                             break;
-                         }
-                     }
+
+                // Agar umumiy ism to'liq ishtirok etgan bo'lsa
+                if (text.includes(customerName)) {
+                    score += 50;
                 }
 
-                if (allPartsMatch) {
+                if (score > maxMijozScore && score > 2) {
+                    maxMijozScore = score;
                     bestMijoz = opt.value;
-                    break; // Birinchi to'liq mos kelganini olamiz
                 }
             }
 
@@ -222,19 +243,38 @@
                 selectedOption.scrollIntoView({ block: 'center' });
             }
 
-            // 3. Try to find bread type
+            // 3. Non turini baholash tizimi orqali qidirish
             let bestNon = null;
+            let maxNonScore = 0;
+
             for (let opt of nonOptions) {
                 const name = opt.value.toLowerCase().trim();
-                // "domboq", "dumboq", "dombog", "dumboqi"
-                if (
-                    (name.includes('domboq') && (text.includes('domboq') || text.includes('dumboq') || text.includes('dombog'))) ||
-                    (name.includes('oddiy') && text.includes('oddiy')) ||
-                    (name.includes('shirin') && text.includes('shirin')) ||
-                    (text.includes(name))
-                ) {
+                let score = 0;
+
+                // Tillar bo'yicha maxsus tekshiruvlar (shevaga mos)
+                if (name.includes('domboq')) {
+                    if (text.match(/(domboq|dumboq|dombog|dumboqi)/)) score += 50;
+                }
+                if (name.includes('oddiy') && text.includes('oddiy')) score += 50;
+                if (name.includes('shirin') && text.includes('shirin')) score += 50;
+                if (name.includes('achchiq') && text.includes('achchiq')) score += 50;
+                
+                const nameParts = name.split(' ');
+                for (let part of nameParts) {
+                    // Umumiy so'zlarni hisobga olmaslik
+                    if (part.length < 3 || part === 'non' || part === 'gramli') continue;
+                    
+                    for (let word of words) {
+                        if (word === part) score += 10;
+                        else if (word.startsWith(part)) score += 5;
+                    }
+                }
+
+                if (text.includes(name)) score += 20;
+
+                if (score > maxNonScore && score > 0) {
+                    maxNonScore = score;
                     bestNon = opt.value;
-                    break;
                 }
             }
 

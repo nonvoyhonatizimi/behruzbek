@@ -479,6 +479,40 @@ def clear_un_qoldiq():
         
     return redirect(url_for('production.un_qoldiq_list'))
 
+@production_bp.route('/un-qoldiq/clear-history', methods=['POST'])
+@login_required
+def clear_archived_un_history():
+    """Arxivlangan barcha eski un qoldiqlarini bazadan butunlay o'chirish"""
+    if current_user.rol != 'admin':
+        flash('Bu funksiya faqat admin uchun!', 'error')
+        return redirect(url_for('production.un_qoldiq_list'))
+        
+    # Ismdagi '(Eski_' so'zi bo'lgan barcha yozuvlarni topib o'chirish
+    unlar = UnQoldiq.query.filter(UnQoldiq.un_turi.like('%(Eski_%')).all()
+    count = len(unlar)
+    
+    for arxiv in unlar:
+        db.session.delete(arxiv)
+        
+    db.session.commit()
+    
+    flash(f'{count} ta eski arxivlangan unlar tarixi bazadan tozalandi!', 'success')
+    return redirect(url_for('production.un_qoldiq_list'))
+
+@production_bp.route('/un-qoldiq/delete/<int:id>')
+@login_required
+def delete_un_qoldiq(id):
+    """Bitta un qo'shilish tarixini o'chirish"""
+    if current_user.rol != 'admin':
+        flash('Bu funksiya faqat admin uchun!', 'error')
+        return redirect(url_for('production.un_qoldiq_list'))
+        
+    un = UnQoldiq.query.get_or_404(id)
+    db.session.delete(un)
+    db.session.commit()
+    flash('Un kelishi haqidagi ma\'lumot o\'chirildi', 'success')
+    return redirect(url_for('production.un_qoldiq_list'))
+
 @production_bp.route('/un-qoldiq/add', methods=['GET', 'POST'])
 @login_required
 def add_un_qoldiq():

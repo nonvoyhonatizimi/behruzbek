@@ -34,7 +34,14 @@
     <a href="{{ url_for('production.un_turlari_list') }}" class="btn btn-info mb-3">Un Turlari</a>
     <a href="{{ url_for('production.add_dough') }}" class="btn btn-success mb-3">Xamir Qilish</a>
     
-    <h4 class="mt-4">Kelgan Unlar Tarixi</h4>
+    <div class="d-flex justify-content-between align-items-center mt-4 mb-2">
+        <h4 class="mb-0">Kelgan Unlar Tarixi</h4>
+        {% if current_user.rol == 'admin' %}
+        <form action="{{ url_for('production.clear_archived_un_history') }}" method="POST" onsubmit="return confirm('Barcha eski (arxivlangan) unlar tarixini bazadan butunlay o\'chirib yubormoqchimisiz?');">
+            <button type="submit" class="btn btn-outline-danger btn-sm"><i class="fas fa-trash-alt"></i> Eski tarixni butunlay o'chirish</button>
+        </form>
+        {% endif %}
+    </div>
     <table class="table table-striped">
         <thead>
             <tr>
@@ -43,6 +50,7 @@
                 <th>Qop Soni</th>
                 <th>Izoh</th>
                 <th>Xodim</th>
+                <th>Amallar</th>
             </tr>
         </thead>
         <tbody>
@@ -53,6 +61,13 @@
                 <td>{{ record.qop_soni }}</td>
                 <td>{{ record.izoh }}</td>
                 <td>{{ record.employee.ism if record.employee else '-' }}</td>
+                <td>
+                    {% if current_user.rol == 'admin' %}
+                    <a href="{{ url_for('production.delete_un_qoldiq', id=record.id) }}" class="btn btn-danger btn-sm" onclick="return confirm('Bu ma\'lumotni o\'chirsangiz ombordagi jami qoldiq miqdori o\'zgarishi mumkin, ishonchingiz komilmi?');">
+                        <i class="fas fa-trash"></i>
+                    </a>
+                    {% endif %}
+                </td>
             </tr>
             {% endfor %}
         </tbody>

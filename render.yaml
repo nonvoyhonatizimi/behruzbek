@@ -10,16 +10,8 @@ services:
       - key: SECRET_KEY
         generateValue: true
       - key: DATABASE_URL
-        fromDatabase:
-          name: nonvoyhona-db
-          property: connectionString
+        value: sqlite:////data/behruzbek.db
     disk:
       name: data
       mountPath: /data
       sizeGB: 1
-
-databases:
-  - name: nonvoyhona-db
-    databaseName: nonvoyhona
-    user: nonvoyhona_user
-    plan: free

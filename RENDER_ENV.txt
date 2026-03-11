@@ -1,7 +1,7 @@
 Render Dashboard → Web Service → Environment Variables:
 
 Key: DATABASE_URL
-Value: postgresql://nonvoyhonatizimi_user:JIPK1bBsLGGiQI04QfCG70cVbPT2VvDb@dpg-d6juhpntskes73b5drl0-a/nonvoyhonatizimi
+Value: sqlite:///behruzbek.db
 
 Key: SECRET_KEY
-Value: nonvoyhona-secret-key-2024
+Value: behruzbek-secret-key-2024

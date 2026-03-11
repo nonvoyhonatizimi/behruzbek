@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Database initialization script for Nonvoyhona Tizimi
+Database initialization script for Behruzbek Tizimi
 Run this after setting up your PostgreSQL database
 """
 
@@ -24,7 +24,7 @@ def init_database():
         
         # Add default customers if not exist
         customers_to_add = [
-            "volidam", "doston", "sanjar patir", "noilaxon", "ziyo patir",
+            "behruzbek", "doston", "sanjar patir", "noilaxon", "ziyo patir",
             "turonboy", "shirin patir", "xojamboy", "azizbek patir", "akmal patir",
             "shukurullo patir", "abduqahor patir", "milyon patir", "ramshit patir",
             "xusanboy patir", "ishonch patir", "soxib patir", "sardor patir",

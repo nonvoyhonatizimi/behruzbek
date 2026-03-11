@@ -1,4 +1,4 @@
-/* Apple Design System - Nonvoyhona Tizimi */
+/* Apple Design System - Behruzbek Tizimi */
 
 :root {
     /* Apple ranglari */
@@ -72,7 +72,7 @@ body {
     height: 100vh;
     max-height: 100vh;
     background: var(--sidebar-bg);
-    color: var(--sidebar-text);
+    color: var(--text-secondary);
     padding: 20px 16px !important;
     position: fixed;
     left: 0;
@@ -132,7 +132,7 @@ i
 
 .sidebar h4 {
     font-size: 20px;
-    font-weight: 700;
+    font-weight: 600;
     letter-spacing: -0.021em;
     margin-bottom: 4px;
 }
@@ -150,12 +150,12 @@ i
 }
 
 .sidebar .nav-link {
-    color: rgba(255, 255, 255, 0.8);
+    color: var(--text-secondary);
     padding: 12px 16px;
     border-radius: var(--radius-md);
-    font-size: 20px;
-    font-weight: 500;
-    letter-spacing: -0.01em;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
     align-items: center;
@@ -163,14 +163,16 @@ i
 }
 
 .sidebar .nav-link:hover {
-    color: white;
-    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+    background: var(--bg-secondary) !important;
+    border-radius: var(--radius-md) !important;
 }
 
 .sidebar .nav-link.active {
-    color: white;
-    background: var(--apple-blue);
-    box-shadow: 0 2px 8px rgba(0, 122, 255, 0.3);
+    color: white !important;
+    background: #4318FF !important;
+    box-shadow: 0 4px 10px rgba(67, 24, 255, 0.2);
+    border-radius: var(--radius-md) !important;
 }
 
 .sidebar .nav-link i {
@@ -228,13 +230,10 @@ body.sidebar-hidden main {
 
 /* Navbar - Apple uslubida */
 .navbar {
-    background: rgba(255, 255, 255, 0.72);
-    backdrop-filter: var(--blur-regular);
-    -webkit-backdrop-filter: var(--blur-regular);
+    background: transparent;
     border: none;
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-sm);
-    padding: 12px 24px;
+    box-shadow: none;
+    padding: 12px 0px;
     margin-bottom: 24px !important;
 }
 
@@ -334,7 +333,7 @@ body.sidebar-hidden main {
 }
 
 .btn-primary {
-    background: var(--apple-blue);
+    background: #4318FF;
     color: white;
 }
 
@@ -345,7 +344,7 @@ body.sidebar-hidden main {
 }
 
 .btn-success {
-    background: var(--apple-green);
+    background: #05CD99;
     color: white;
 }
 
@@ -356,7 +355,7 @@ body.sidebar-hidden main {
 }
 
 .btn-danger {
-    background: var(--apple-red);
+    background: #EE5D50;
     color: white;
 }
 
@@ -367,7 +366,7 @@ body.sidebar-hidden main {
 }
 
 .btn-warning {
-    background: var(--apple-orange);
+    background: #FFCE20;
     color: white;
 }
 
@@ -412,7 +411,7 @@ body.sidebar-hidden main {
 
 .form-control:focus, .form-select:focus {
     background: var(--bg-primary);
-    border-color: var(--apple-blue);
+    border-color: #4318FF;
     box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.15);
     outline: none;
 }
@@ -477,20 +476,20 @@ body.sidebar-hidden main {
 }
 
 .bg-success {
-    background: var(--apple-green) !important;
+    background: #05CD99 !important;
 }
 
 .bg-danger {
-    background: var(--apple-red) !important;
+    background: #EE5D50 !important;
 }
 
 .bg-warning {
-    background: var(--apple-orange) !important;
+    background: #FFCE20 !important;
     color: white !important;
 }
 
 .bg-info {
-    background: var(--apple-blue) !important;
+    background: #4318FF !important;
 }
 
 /* Pagination - Apple uslubida */
@@ -515,7 +514,7 @@ body.sidebar-hidden main {
 }
 
 .page-item.active .page-link {
-    background: var(--apple-blue);
+    background: #4318FF;
     color: white;
 }
 
@@ -540,7 +539,7 @@ body.sidebar-hidden main {
 }
 
 .dropdown-item:hover {
-    background: var(--apple-blue);
+    background: #4318FF;
     color: white;
 }
 
@@ -576,7 +575,7 @@ body.sidebar-hidden main {
 
 /* Statistik kartochkalar */
 .stats-card {
-    background: linear-gradient(135deg, var(--apple-blue) 0%, var(--apple-indigo) 100%);
+    background: linear-gradient(135deg, #4318FF 0%, var(--apple-indigo) 100%);
     color: white;
     border-radius: var(--radius-lg);
     padding: 24px;
@@ -584,15 +583,15 @@ body.sidebar-hidden main {
 }
 
 .stats-card.success {
-    background: linear-gradient(135deg, var(--apple-green) 0%, #30B350 100%);
+    background: linear-gradient(135deg, #05CD99 0%, #30B350 100%);
 }
 
 .stats-card.warning {
-    background: linear-gradient(135deg, var(--apple-orange) 0%, #E68600 100%);
+    background: linear-gradient(135deg, #FFCE20 0%, #E68600 100%);
 }
 
 .stats-card.danger {
-    background: linear-gradient(135deg, var(--apple-red) 0%, #E02E24 100%);
+    background: linear-gradient(135deg, #EE5D50 0%, #E02E24 100%);
 }
 
 .stats-card h3 {
@@ -815,7 +814,7 @@ body.sidebar-hidden .sidebar-toggle i {
 }
 
 .breadcrumb-item a {
-    color: var(--apple-blue);
+    color: #4318FF;
     text-decoration: none;
 }
 
@@ -850,9 +849,9 @@ body.sidebar-hidden .sidebar-toggle i {
 }
 
 .nav-tabs .nav-link.active {
-    color: var(--apple-blue);
+    color: #4318FF;
     background: var(--bg-primary);
-    border-bottom: 2px solid var(--apple-blue);
+    border-bottom: 2px solid #4318FF;
 }
 
 /* Progress bar - Apple uslubida */
@@ -864,7 +863,7 @@ body.sidebar-hidden .sidebar-toggle i {
 }
 
 .progress-bar {
-    background: var(--apple-blue);
+    background: #4318FF;
     border-radius: var(--radius-full);
 }
 
@@ -888,7 +887,7 @@ body.sidebar-hidden .sidebar-toggle i {
 }
 
 .list-group-item.active {
-    background: var(--apple-blue);
+    background: #4318FF;
     color: white;
 }
 
@@ -999,4 +998,58 @@ body.sidebar-hidden .sidebar-toggle i {
     cursor: pointer;
     background: none;
     border: none;
+}
+
+/* General Background updates */
+body {
+    background-color: var(--bg-secondary);
+}
+
+/* Card updates */
+.card {
+    background: var(--bg-primary);
+    border: none;
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-sm);
+}
+
+/* Custom Alert styling to match Venus dashboard */
+.alert-info, .bg-primary, .btn-primary {
+    background-color: #4318FF !important;
+    color: white !important;
+}
+
+/* Specific component colors seen in Venus */
+.bg-warning {
+    background-color: #FFCE20 !important;
+    color: #2B3674 !important;
+}
+
+.bg-success {
+    background-color: #05CD99 !important;
+    color: white !important;
+}
+
+.bg-danger {
+    background-color: #EE5D50 !important; 
+    color: white !important;
+}
+
+/* Add shadow to main content area to make it pop */
+main {
+    background-color: #F4F7FE;
+    min-height: 100vh;
+}
+
+/* Table header text color */
+.table thead th {
+    color: var(--text-secondary);
+    font-weight: 500;
+    text-transform: none;
+    border-bottom: 1px solid var(--apple-gray4);
+}
+
+.table tbody td {
+    color: var(--text-primary);
+    font-weight: 700;
 }

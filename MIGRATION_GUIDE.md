@@ -1,6 +1,6 @@
 # PostgreSQL Migration Guide
 
-This guide explains how to migrate from SQLite to PostgreSQL for the Nonvoyhona Tizimi.
+This guide explains how to migrate from SQLite to PostgreSQL for the Behruzbek Tizimi.
 
 ## Prerequisites
 
@@ -33,13 +33,13 @@ sudo service postgresql start
 sudo -u postgres psql
 
 # Create database
-CREATE DATABASE nonvoyhona;
+CREATE DATABASE behruzbek;
 
 # Create user (if needed)
 CREATE USER your_username WITH PASSWORD 'your_password';
 
 # Grant privileges
-GRANT ALL PRIVILEGES ON DATABASE nonvoyhona TO your_username;
+GRANT ALL PRIVILEGES ON DATABASE behruzbek TO your_username;
 
 # Exit
 \q
@@ -52,7 +52,7 @@ GRANT ALL PRIVILEGES ON DATABASE nonvoyhona TO your_username;
 cp .env.example .env
 
 # Edit .env with your database credentials
-DATABASE_URL=postgresql://username:password@localhost:5432/nonvoyhona
+DATABASE_URL=postgresql://username:password@localhost:5432/behruzbek
 SECRET_KEY=your-secret-key-here
 ```
 

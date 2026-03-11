@@ -1,9 +1,44 @@
 {% extends "base.html" %}
 
-{% block title %}Bugungi sotuvlar - Nonvoyhona Tizimi{% endblock %}
+{% block title %}Bugungi sotuvlar - Behruzbek Tizimi{% endblock %}
 {% block header_title %}Bugungi sotuvlar hisoboti{% endblock %}
 
 {% block content %}
+
+<style>
+/* Override default colors to match Venus design on this specific page */
+.bg-primary { background: #4318FF !important; border-radius: 16px; }
+.bg-warning { background: #FFCE20 !important; border-radius: 16px; color: #2B3674 !important; }
+.bg-success { background: #05CD99 !important; border-radius: 16px; }
+
+/* Alert box */
+.alert-primary {
+    background: #4318FF !important;
+    color: white !important;
+    border: none;
+    border-radius: 16px;
+    box-shadow: 0px 18px 40px rgba(112, 144, 176, 0.12);
+}
+
+/* Cards */
+.card {
+    border: none;
+    border-radius: 20px;
+    box-shadow: 0px 4px 10px rgba(112, 144, 176, 0.08);
+}
+
+.text-white { color: white !important; }
+h3.text-white, h6.text-white-50 { color: white !important; }
+
+.btn-primary { background: #4318FF !important; border: none; }
+.btn-danger { background: #EE5D50 !important; border: none; }
+.btn-outline-primary { color: #4318FF !important; border-color: #4318FF !important; }
+.btn-outline-primary:hover { background: #4318FF !important; color: white !important; }
+
+/* Text colors */
+.text-muted { color: #A3AED0 !important; }
+</style>
+
 <!-- Filter -->
 <div class="card mb-4">
     <div class="card-header bg-white">

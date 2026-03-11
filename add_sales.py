@@ -124,7 +124,7 @@ def add_all_sales():
             ('03.03.2026', '10:45', 'Sanjar patir', 'Sanjar non', 50, 10000, 0, 500000, 'Abdulloh'),
             
             # Skrinshot 3
-            ('03.03.2026', '11:26', 'Volidam', 'Novvot non', 20, 10000, 0, 200000, 'Abdulloh'),
+            ('03.03.2026', '11:26', 'Behruzbek', 'Novvot non', 20, 10000, 0, 200000, 'Abdulloh'),
             ('03.03.2026', '11:29', 'rashid patir', 'Domboq', 6, 8500, 0, 51000, 'Abdulloh'),
             ('03.03.2026', '11:32', 'tomchi dangara', 'Doltali', 10, 8000, 0, 80000, 'Abdulloh'),
             ('03.03.2026', '11:33', 'tomchi dangara', 'Kokli non', 10, 8000, 0, 80000, 'Abdulloh'),
@@ -157,9 +157,9 @@ def add_all_sales():
             ('03.03.2026', '17:36', 'lazzat patir2', 'Achchiq', 4, 8000, 0, 32000, 'Abdulloh'),
             ('03.03.2026', '17:36', 'lazzat patir2', '700 gramli', 4, 8500, 0, 34000, 'Abdulloh'),
             ('03.03.2026', '17:50', 'xusanboy patir', 'Achchiq', 10, 8000, 0, 80000, 'Abdulloh'),
-            ('03.03.2026', '17:58', 'Volidam', 'Domboq', 10, 8500, 0, 85000, 'Abdulloh'),
-            ('03.03.2026', '20:36', 'Volidam', 'Domboq', 10, 8500, 0, 85000, 'Abdulloh'),
-            ('03.03.2026', '21:21', 'Volidam', 'Domboq', 10, 8509, 0, 85090, 'Abdulloh'),
+            ('03.03.2026', '17:58', 'Behruzbek', 'Domboq', 10, 8500, 0, 85000, 'Abdulloh'),
+            ('03.03.2026', '20:36', 'Behruzbek', 'Domboq', 10, 8500, 0, 85000, 'Abdulloh'),
+            ('03.03.2026', '21:21', 'Behruzbek', 'Domboq', 10, 8509, 0, 85090, 'Abdulloh'),
             ('03.03.2026', '21:47', 'Naqt sotuvlar', 'Domboq', 5, 9000, 45000, 0, 'Abdulloh'),
             ('03.03.2026', '21:47', 'Naqt sotuvlar', 'Domboq', 6, 8500, 51000, 0, 'Abdulloh'),
             

@@ -13,7 +13,7 @@ TELEGRAM_BOT_TOKEN = "8443497785:AAG6UAJIzZv8HCSTKHqmYUe6dYRlIxu-Yn4"
 
 # Customer to Telegram Group mapping
 CUSTOMER_GROUPS = {
-    "volidam": "-5191200114",
+    "behruzbek": "-5191200114",
     "doston": "-5220067597",
     "sanjar patir": "-5119590423",
     "noilaxon": "-5136672687",

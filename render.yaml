@@ -10,8 +10,4 @@ services:
       - key: SECRET_KEY
         generateValue: true
       - key: DATABASE_URL
-        value: sqlite:////data/behruzbek.db
-    disk:
-      name: data
-      mountPath: /data
-      sizeGB: 1
+        value: postgresql://nonvoyhonatizimi_user:JIPK1bBsLGGiQI04QfCG70cVbPT2VvDb@dpg-d76ln5fpm1nc7398quv0-a/nonvoyhonatizimi_iyp6

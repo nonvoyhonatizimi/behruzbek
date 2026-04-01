@@ -15,6 +15,10 @@ app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'nonvoyhona-secret-key-1
 
 # Database configuration - uses DATABASE_URL environment variable or defaults to SQLite
 DATABASE_URL = os.environ.get('DATABASE_URL', 'sqlite:///behruzbek.db')
+if DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql+pg8000://", 1)
+elif DATABASE_URL.startswith("postgresql://"):
+    DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+pg8000://", 1)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
 

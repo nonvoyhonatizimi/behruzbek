@@ -13,8 +13,10 @@ load_dotenv()
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'nonvoyhona-secret-key-123')
 
-# Database configuration - uses DATABASE_URL environment variable or defaults to SQLite
-DATABASE_URL = os.environ.get('DATABASE_URL', 'sqlite:///behruzbek.db')
+# Xamma joyda faqat PostgreSQL ishlatiladi
+EXTERNAL_DB_URL = "postgresql://nonvoyhonatizimi_user:JIPK1bBsLGGiQI04QfCG70cVbPT2VvDb@dpg-d76ln5fpm1nc7398quv0-a.oregon-postgres.render.com/nonvoyhonatizimi_iyp6"
+DATABASE_URL = os.environ.get('DATABASE_URL', EXTERNAL_DB_URL)
+
 if DATABASE_URL.startswith("postgres://"):
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql+pg8000://", 1)
 elif DATABASE_URL.startswith("postgresql://"):

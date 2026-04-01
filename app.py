@@ -14,11 +14,19 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'nonvoyhona-secret-key-123')
 
 # Xamma joyda faqat PostgreSQL ishlatiladi
+INTERNAL_DB_URL = "postgresql://nonvoyhonatizimi_user:JIPK1bBsLGGiQI04QfCG70cVbPT2VvDb@dpg-d76ln5fpm1nc7398quv0-a/nonvoyhonatizimi_iyp6"
 EXTERNAL_DB_URL = "postgresql://nonvoyhonatizimi_user:JIPK1bBsLGGiQI04QfCG70cVbPT2VvDb@dpg-d76ln5fpm1nc7398quv0-a.oregon-postgres.render.com/nonvoyhonatizimi_iyp6"
-DATABASE_URL = os.environ.get('DATABASE_URL', EXTERNAL_DB_URL)
+
+# Agar RENDER da ishlayotgan bo'lsa, avtomatik ravishda INTERNAL_DB_URL ni olib ulanadi
+if os.environ.get('RENDER'):
+    DATABASE_URL = os.environ.get('DATABASE_URL', INTERNAL_DB_URL)
+else:
+    DATABASE_URL = os.environ.get('DATABASE_URL', EXTERNAL_DB_URL)
 
 if DATABASE_URL.startswith("postgres://"):
-    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql+pg8000://", 1)
+elif DATABASE_URL.startswith("postgresql://"):
+    DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+pg8000://", 1)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
 
